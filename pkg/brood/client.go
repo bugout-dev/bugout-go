@@ -23,6 +23,7 @@ type BroodCaller interface {
 	AnnotateToken(token, tokenType, note string) (string, error)
 	ListTokens(token string) (UserTokensList, error)
 	GetUser(token string) (User, error)
+	VerifyUser(token, code string) (User, error)
 }
 
 type BroodRoutes struct {
@@ -30,7 +31,7 @@ type BroodRoutes struct {
 	Version             string
 	User                string
 	Groups              string
-	GenerateToken       string
+	Token               string
 	RevokeToken         string
 	ListTokens          string
 	ConfirmRegistration string
@@ -47,8 +48,7 @@ func RoutesFromURL(broodURL string) BroodRoutes {
 		Version:             fmt.Sprintf("%s/version", cleanURL),
 		User:                fmt.Sprintf("%s/user", cleanURL),
 		Groups:              fmt.Sprintf("%s/groups", cleanURL),
-		GenerateToken:       fmt.Sprintf("%s/token", cleanURL),
-		RevokeToken:         fmt.Sprintf("%s/revoke", cleanURL),
+		Token:               fmt.Sprintf("%s/token", cleanURL),
 		ListTokens:          fmt.Sprintf("%s/tokens", cleanURL),
 		ConfirmRegistration: fmt.Sprintf("%s/confirm", cleanURL),
 		ChangePassword:      fmt.Sprintf("%s/profile/password", cleanURL),

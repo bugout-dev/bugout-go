@@ -39,7 +39,7 @@ func (client BroodClient) CreateUser(username, email, password string) (User, er
 }
 
 func (client BroodClient) GenerateToken(username, password string) (string, error) {
-	tokenRoute := client.Routes.GenerateToken
+	tokenRoute := client.Routes.Token
 	data := url.Values{}
 	data.Add("username", username)
 	data.Add("password", password)
@@ -65,7 +65,7 @@ func (client BroodClient) GenerateToken(username, password string) (string, erro
 }
 
 func (client BroodClient) AnnotateToken(token, tokenType, note string) (string, error) {
-	tokenRoute := client.Routes.GenerateToken
+	tokenRoute := client.Routes.Token
 	data := url.Values{}
 	data.Add("access_token", token)
 	data.Add("token_type", tokenType)
@@ -114,7 +114,7 @@ func (client BroodClient) ListTokens(token string) (UserTokensList, error) {
 
 	statusErr := utils.HTTPStatusCheck(response)
 	if statusErr != nil {
-		return UserTokensList{}, err
+		return UserTokensList{}, statusErr
 	}
 
 	var result UserTokensList
@@ -139,7 +139,38 @@ func (client BroodClient) GetUser(token string) (User, error) {
 
 	statusErr := utils.HTTPStatusCheck(response)
 	if statusErr != nil {
+		return User{}, statusErr
+	}
+
+	var user User
+	decodeErr := json.NewDecoder(response.Body).Decode(&user)
+	return user, decodeErr
+}
+
+func (client BroodClient) VerifyUser(token, code string) (User, error) {
+	confirmRoute := client.Routes.ConfirmRegistration
+	data := url.Values{}
+	data.Add("verification_code", code)
+	encodedData := data.Encode()
+
+	request, requestErr := http.NewRequest("POST", confirmRoute, strings.NewReader(encodedData))
+	if requestErr != nil {
+		return User{}, requestErr
+	}
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	request.Header.Add("Content-Length", strconv.Itoa(len(encodedData)))
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	response, err := client.HTTPClient.Do(request)
+	if err != nil {
 		return User{}, err
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return User{}, statusErr
 	}
 
 	var user User

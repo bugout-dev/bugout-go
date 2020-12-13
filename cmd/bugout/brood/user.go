@@ -19,8 +19,9 @@ func CreateUserCommand() *cobra.Command {
 	userLoginCmd := CreateUserLoginCommand()
 	userTokensCmd := CreateUserTokensCommand()
 	userGetCmd := CreateUserGetCommand()
+	userVerifyCmd := CreateUserVerifyCommand()
 
-	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd, userGetCmd)
+	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd, userGetCmd, userVerifyCmd)
 
 	return userCmd
 }
@@ -150,4 +151,33 @@ func CreateUserGetCommand() *cobra.Command {
 	userGetCmd.MarkFlagRequired("token")
 
 	return userGetCmd
+}
+
+func CreateUserVerifyCommand() *cobra.Command {
+	var token, code string
+	userVerifyCmd := &cobra.Command{
+		Use:   "verify",
+		Short: "Verify the user represented by a token",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := bugout.ClientFromEnv()
+			if err != nil {
+				return err
+			}
+
+			user, err := client.Brood.VerifyUser(token, code)
+			if err != nil {
+				return err
+			}
+
+			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(&user)
+			return encodeErr
+		},
+	}
+
+	userVerifyCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	userVerifyCmd.Flags().StringVarP(&code, "code", "c", "", "Verification code that was sent to user's email address")
+	userVerifyCmd.MarkFlagRequired("token")
+	userVerifyCmd.MarkFlagRequired("code")
+
+	return userVerifyCmd
 }
