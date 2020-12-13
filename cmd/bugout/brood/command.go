@@ -1,4 +1,4 @@
-package brood
+package broodcmd
 
 import (
 	"fmt"
@@ -19,9 +19,10 @@ groups from your command line`,
 	}
 
 	pingCmd := CreatePingCommand()
+	userCmd := CreateUserCommand()
 	versionCmd := CreateVersionCommand()
 
-	broodCmd.AddCommand(pingCmd, versionCmd)
+	broodCmd.AddCommand(pingCmd, userCmd, versionCmd)
 
 	return broodCmd
 }

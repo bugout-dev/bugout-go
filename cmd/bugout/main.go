@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/bugout-dev/bugout-go/cmd/bugout/brood"
+	broodcmd "github.com/bugout-dev/bugout-go/cmd/bugout/brood"
 	bugout "github.com/bugout-dev/bugout-go/pkg"
 )
 
@@ -20,7 +20,7 @@ The bugout utility lets you interact with your Bugout resources from your comman
 		Version: bugout.Version,
 	}
 
-	broodCmd := brood.CreateBroodCommand()
+	broodCmd := broodcmd.CreateBroodCommand()
 	completionCmd := CreateBugoutCompletionCommand()
 
 	bugoutCmd.AddCommand(broodCmd, completionCmd)

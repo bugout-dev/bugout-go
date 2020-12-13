@@ -3,7 +3,7 @@ package bugout
 import "github.com/bugout-dev/bugout-go/pkg/brood"
 
 type BugoutClient struct {
-	Brood brood.BroodClient
+	Brood brood.BroodCaller
 }
 
 func ClientFromEnv() (BugoutClient, error) {

@@ -18,6 +18,7 @@ const BugoutBroodURL string = "https://auth.bugout.dev"
 type BroodCaller interface {
 	Ping() (string, error)
 	Version() (string, error)
+	CreateUser(string, string, string) (User, error)
 }
 
 type BroodRoutes struct {
@@ -55,10 +56,10 @@ func RoutesFromURL(broodURL string) BroodRoutes {
 type BroodClient struct {
 	BroodURL   string
 	Routes     BroodRoutes
-	HTTPClient http.Client
+	HTTPClient *http.Client
 }
 
-func (client *BroodClient) Ping() (string, error) {
+func (client BroodClient) Ping() (string, error) {
 	pingURL := client.Routes.Ping
 	response, err := client.HTTPClient.Get(pingURL)
 	if err != nil {
@@ -78,7 +79,7 @@ func (client *BroodClient) Ping() (string, error) {
 	return string(pingBytes), nil
 }
 
-func (client *BroodClient) Version() (string, error) {
+func (client BroodClient) Version() (string, error) {
 	versionURL := client.Routes.Version
 	response, err := client.HTTPClient.Get(versionURL)
 	if err != nil {
@@ -101,7 +102,7 @@ func (client *BroodClient) Version() (string, error) {
 func NewClient(broodURL string, timeout time.Duration) BroodClient {
 	routes := RoutesFromURL(broodURL)
 	httpClient := http.Client{Timeout: timeout}
-	return BroodClient{BroodURL: broodURL, Routes: routes, HTTPClient: httpClient}
+	return BroodClient{BroodURL: broodURL, Routes: routes, HTTPClient: &httpClient}
 }
 
 func ClientFromEnv() (BroodClient, error) {
