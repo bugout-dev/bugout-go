@@ -1,20 +1,23 @@
 package brood
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/bugout-dev/bugout-go/pkg/utils"
 )
 
 // Default Brood URL
 const BugoutBroodURL string = "https://auth.bugout.dev"
 
 type BroodCaller interface {
-	Ping() (PingResponse, error)
+	Ping() (string, error)
+	Version() (string, error)
 }
 
 type BroodRoutes struct {
@@ -55,21 +58,44 @@ type BroodClient struct {
 	HTTPClient http.Client
 }
 
-func (client *BroodClient) Ping() (PingResponse, error) {
+func (client *BroodClient) Ping() (string, error) {
 	pingURL := client.Routes.Ping
 	response, err := client.HTTPClient.Get(pingURL)
 	if err != nil {
-		return PingResponse{}, err
+		return "", err
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		return PingResponse{}, fmt.Errorf("Invalid status code: %d", response.StatusCode)
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return "", statusErr
 	}
 
-	var pingResponse PingResponse
-	err = json.NewDecoder(response.Body).Decode(&pingResponse)
-	return pingResponse, err
+	pingBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(pingBytes), nil
+}
+
+func (client *BroodClient) Version() (string, error) {
+	versionURL := client.Routes.Version
+	response, err := client.HTTPClient.Get(versionURL)
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return "", statusErr
+	}
+
+	versionBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(versionBytes), nil
 }
 
 func NewClient(broodURL string, timeout time.Duration) BroodClient {

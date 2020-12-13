@@ -1,8 +1,7 @@
 package brood
 
 import (
-	"encoding/json"
-	"os"
+	"fmt"
 
 	"github.com/spf13/cobra"
 
@@ -20,8 +19,9 @@ groups from your command line`,
 	}
 
 	pingCmd := CreatePingCommand()
+	versionCmd := CreateVersionCommand()
 
-	broodCmd.AddCommand(pingCmd)
+	broodCmd.AddCommand(pingCmd, versionCmd)
 
 	return broodCmd
 }
@@ -30,7 +30,6 @@ func CreatePingCommand() *cobra.Command {
 	pingCmd := &cobra.Command{
 		Use:   "ping",
 		Short: "Ping Brood to see if it is active",
-		Long:  `Ping's Brood to see if it is active.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
 			if err != nil {
@@ -42,7 +41,31 @@ func CreatePingCommand() *cobra.Command {
 				return err
 			}
 
-			json.NewEncoder(os.Stdout).Encode(result)
+			fmt.Println(result)
+
+			return nil
+		},
+	}
+
+	return pingCmd
+}
+
+func CreateVersionCommand() *cobra.Command {
+	pingCmd := &cobra.Command{
+		Use:   "version",
+		Short: "Check Brood version",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := bugout.ClientFromEnv()
+			if err != nil {
+				return err
+			}
+
+			result, err := client.Brood.Version()
+			if err != nil {
+				return err
+			}
+
+			fmt.Println(result)
 
 			return nil
 		},
