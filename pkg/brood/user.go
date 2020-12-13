@@ -121,3 +121,28 @@ func (client BroodClient) ListTokens(token string) (UserTokensList, error) {
 	decodeErr := json.NewDecoder(response.Body).Decode(&result)
 	return result, decodeErr
 }
+
+func (client BroodClient) GetUser(token string) (User, error) {
+	userRoute := client.Routes.User
+	request, requestErr := http.NewRequest("GET", userRoute, nil)
+	if requestErr != nil {
+		return User{}, requestErr
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	response, err := client.HTTPClient.Do(request)
+	if err != nil {
+		return User{}, err
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return User{}, err
+	}
+
+	var user User
+	decodeErr := json.NewDecoder(response.Body).Decode(&user)
+	return user, decodeErr
+}

@@ -18,8 +18,9 @@ func CreateUserCommand() *cobra.Command {
 	userCreateCmd := CreateUserCreateCommand()
 	userLoginCmd := CreateUserLoginCommand()
 	userTokensCmd := CreateUserTokensCommand()
+	userGetCmd := CreateUserGetCommand()
 
-	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd)
+	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd, userGetCmd)
 
 	return userCmd
 }
@@ -122,4 +123,31 @@ The user is identified by a Bugout access token.`,
 	userTokensCmd.MarkFlagRequired("token")
 
 	return userTokensCmd
+}
+
+func CreateUserGetCommand() *cobra.Command {
+	var token string
+	userGetCmd := &cobra.Command{
+		Use:   "get",
+		Short: "Get the user represented by a token",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := bugout.ClientFromEnv()
+			if err != nil {
+				return err
+			}
+
+			user, err := client.Brood.GetUser(token)
+			if err != nil {
+				return err
+			}
+
+			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(&user)
+			return encodeErr
+		},
+	}
+
+	userGetCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	userGetCmd.MarkFlagRequired("token")
+
+	return userGetCmd
 }
