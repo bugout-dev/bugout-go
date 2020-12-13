@@ -24,3 +24,9 @@ type UserToken struct {
 	Note      string `json:"note"`
 	Active    bool   `json:"active"`
 }
+
+type UserTokensList struct {
+	UserId   string      `json:"user_id"`
+	Username string      `json:"username"`
+	Tokens   []UserToken `json:"token"`
+}

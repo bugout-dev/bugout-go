@@ -17,8 +17,9 @@ func CreateUserCommand() *cobra.Command {
 
 	userCreateCmd := CreateUserCreateCommand()
 	userLoginCmd := CreateUserLoginCommand()
+	userTokensCmd := CreateUserTokensCommand()
 
-	userCmd.AddCommand(userCreateCmd, userLoginCmd)
+	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd)
 
 	return userCmd
 }
@@ -91,4 +92,34 @@ func CreateUserLoginCommand() *cobra.Command {
 	userLoginCmd.MarkFlagRequired("password")
 
 	return userLoginCmd
+}
+
+func CreateUserTokensCommand() *cobra.Command {
+	var token string
+	userTokensCmd := &cobra.Command{
+		Use:   "tokens",
+		Short: "List all access tokens for a given user",
+		Long: `List all access tokens for a given user.
+
+The user is identified by a Bugout access token.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := bugout.ClientFromEnv()
+			if err != nil {
+				return err
+			}
+
+			tokens, err := client.Brood.ListTokens(token)
+			if err != nil {
+				return err
+			}
+
+			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(&tokens)
+			return encodeErr
+		},
+	}
+
+	userTokensCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	userTokensCmd.MarkFlagRequired("token")
+
+	return userTokensCmd
 }

@@ -2,6 +2,7 @@ package brood
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -94,4 +95,29 @@ func (client BroodClient) AnnotateToken(token, tokenType, note string) (string, 
 		return "", err
 	}
 	return string(tokenBytes), nil
+}
+
+func (client BroodClient) ListTokens(token string) (UserTokensList, error) {
+	listTokensRoute := client.Routes.ListTokens
+	request, requestErr := http.NewRequest("GET", listTokensRoute, nil)
+	if requestErr != nil {
+		return UserTokensList{}, requestErr
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	response, err := client.HTTPClient.Do(request)
+	if err != nil {
+		return UserTokensList{}, err
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return UserTokensList{}, err
+	}
+
+	var result UserTokensList
+	decodeErr := json.NewDecoder(response.Body).Decode(&result)
+	return result, decodeErr
 }

@@ -21,6 +21,7 @@ type BroodCaller interface {
 	CreateUser(string, string, string) (User, error)
 	GenerateToken(string, string) (string, error)
 	AnnotateToken(token, tokenType, note string) (string, error)
+	ListTokens(token string) (UserTokensList, error)
 }
 
 type BroodRoutes struct {
