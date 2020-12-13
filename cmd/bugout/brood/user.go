@@ -20,8 +20,9 @@ func CreateUserCommand() *cobra.Command {
 	userTokensCmd := CreateUserTokensCommand()
 	userGetCmd := CreateUserGetCommand()
 	userVerifyCmd := CreateUserVerifyCommand()
+	userChangePasswordCmd := CreateUserChangePasswordCommand()
 
-	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd, userGetCmd, userVerifyCmd)
+	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd, userGetCmd, userVerifyCmd, userChangePasswordCmd)
 
 	return userCmd
 }
@@ -180,4 +181,35 @@ func CreateUserVerifyCommand() *cobra.Command {
 	userVerifyCmd.MarkFlagRequired("code")
 
 	return userVerifyCmd
+}
+
+func CreateUserChangePasswordCommand() *cobra.Command {
+	var token, currentPassword, newPassword string
+	userChangePasswordCmd := &cobra.Command{
+		Use:   "change-password",
+		Short: "ChangePassword the user represented by a token",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := bugout.ClientFromEnv()
+			if err != nil {
+				return err
+			}
+
+			user, err := client.Brood.ChangePassword(token, currentPassword, newPassword)
+			if err != nil {
+				return err
+			}
+
+			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(&user)
+			return encodeErr
+		},
+	}
+
+	userChangePasswordCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	userChangePasswordCmd.Flags().StringVar(&currentPassword, "current", "", "Current password for the given user")
+	userChangePasswordCmd.Flags().StringVar(&newPassword, "new", "", "New password for the given user")
+	userChangePasswordCmd.MarkFlagRequired("token")
+	userChangePasswordCmd.MarkFlagRequired("current")
+	userChangePasswordCmd.MarkFlagRequired("new")
+
+	return userChangePasswordCmd
 }

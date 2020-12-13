@@ -177,3 +177,35 @@ func (client BroodClient) VerifyUser(token, code string) (User, error) {
 	decodeErr := json.NewDecoder(response.Body).Decode(&user)
 	return user, decodeErr
 }
+
+func (client BroodClient) ChangePassword(token, currentPassword, newPassword string) (User, error) {
+	changePasswordRoute := client.Routes.ChangePassword
+	data := url.Values{}
+	data.Add("current_password", currentPassword)
+	data.Add("new_password", newPassword)
+	encodedData := data.Encode()
+
+	request, requestErr := http.NewRequest("POST", changePasswordRoute, strings.NewReader(encodedData))
+	if requestErr != nil {
+		return User{}, requestErr
+	}
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	request.Header.Add("Content-Length", strconv.Itoa(len(encodedData)))
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	response, err := client.HTTPClient.Do(request)
+	if err != nil {
+		return User{}, err
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return User{}, statusErr
+	}
+
+	var user User
+	decodeErr := json.NewDecoder(response.Body).Decode(&user)
+	return user, decodeErr
+}
