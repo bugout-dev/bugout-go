@@ -9,7 +9,7 @@ import (
 	"github.com/bugout-dev/bugout-go/cmd/bug/brood"
 )
 
-func bugCommand() *cobra.Command {
+func CreateBugCommand() *cobra.Command {
 	bugCmd := &cobra.Command{
 		Use:   "bug",
 		Short: "Interact with Bugout from your command line",
@@ -18,7 +18,7 @@ func bugCommand() *cobra.Command {
 The bug utility lets you interact with your Bugout resources from your command line.`,
 	}
 
-	broodCmd := brood.BroodCommand()
+	broodCmd := brood.CreateBroodCommand()
 
 	bugCmd.AddCommand(broodCmd)
 
@@ -26,7 +26,7 @@ The bug utility lets you interact with your Bugout resources from your command l
 }
 
 func main() {
-	bugCmd := bugCommand()
+	bugCmd := CreateBugCommand()
 	err := bugCmd.Execute()
 	if err != nil {
 		fmt.Println(err)

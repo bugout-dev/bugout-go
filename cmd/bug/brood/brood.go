@@ -9,7 +9,7 @@ import (
 	bugout "github.com/bugout-dev/bugout-go/pkg"
 )
 
-func BroodCommand() *cobra.Command {
+func CreateBroodCommand() *cobra.Command {
 	broodCmd := &cobra.Command{
 		Use:   "brood",
 		Short: "Interact with Brood, the Bugout authentication API, from your command line",
@@ -19,14 +19,14 @@ Brood is Bugout's authentication API. You can use these commands to interact wit
 groups from your command line`,
 	}
 
-	pingCmd := pingCommand()
+	pingCmd := CreatePingCommand()
 
 	broodCmd.AddCommand(pingCmd)
 
 	return broodCmd
 }
 
-func pingCommand() *cobra.Command {
+func CreatePingCommand() *cobra.Command {
 	pingCmd := &cobra.Command{
 		Use:   "ping",
 		Short: "Ping Brood to see if it is active",
