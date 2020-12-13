@@ -2,6 +2,7 @@ package broodcmd
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/spf13/cobra"
 
@@ -15,8 +16,9 @@ func CreateUserCommand() *cobra.Command {
 	}
 
 	userCreateCmd := CreateUserCreateCommand()
+	userLoginCmd := CreateUserLoginCommand()
 
-	userCmd.AddCommand(userCreateCmd)
+	userCmd.AddCommand(userCreateCmd, userLoginCmd)
 
 	return userCmd
 }
@@ -50,4 +52,43 @@ func CreateUserCreateCommand() *cobra.Command {
 	userCreateCmd.MarkFlagRequired("password")
 
 	return userCreateCmd
+}
+
+func CreateUserLoginCommand() *cobra.Command {
+	var username, password, tokenType, note string
+	userLoginCmd := &cobra.Command{
+		Use:   "login",
+		Short: "Generate an access token for the given Bugout user",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := bugout.ClientFromEnv()
+			if err != nil {
+				return err
+			}
+
+			token, tokenErr := client.Brood.GenerateToken(username, password)
+			if tokenErr != nil {
+				return tokenErr
+			}
+
+			if tokenType != "" || note != "" {
+				_, annotationErr := client.Brood.AnnotateToken(token, tokenType, note)
+				if annotationErr != nil {
+					return annotationErr
+				}
+			}
+
+			fmt.Println(token)
+
+			return nil
+		},
+	}
+
+	userLoginCmd.Flags().StringVarP(&username, "username", "u", "", "Desired username")
+	userLoginCmd.Flags().StringVarP(&password, "password", "p", "", "Password for user")
+	userLoginCmd.Flags().StringVarP(&tokenType, "type", "t", "", "Token type")
+	userLoginCmd.Flags().StringVar(&note, "note", "Created using bugout CLI", "Note about the token")
+	userLoginCmd.MarkFlagRequired("username")
+	userLoginCmd.MarkFlagRequired("password")
+
+	return userLoginCmd
 }

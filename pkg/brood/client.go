@@ -19,6 +19,8 @@ type BroodCaller interface {
 	Ping() (string, error)
 	Version() (string, error)
 	CreateUser(string, string, string) (User, error)
+	GenerateToken(string, string) (string, error)
+	AnnotateToken(token, tokenType, note string) (string, error)
 }
 
 type BroodRoutes struct {
