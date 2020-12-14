@@ -17,6 +17,11 @@ const BugoutSpireURL string = "https://spire.bugout.dev"
 
 type SpireCaller interface {
 	Ping() (string, error)
+	CreateJournal(token, name string) (Journal, error)
+	GetJournal(token, journalID string) (Journal, error)
+	ListJournals(token string) (JournalsList, error)
+	UpdateJournal(token, journalID, name string) (Journal, error)
+	DeleteJournal(token, journalID string) (Journal, error)
 }
 
 type SpireRoutes struct {

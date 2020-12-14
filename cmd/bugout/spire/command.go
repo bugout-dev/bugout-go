@@ -8,9 +8,10 @@ import (
 )
 
 func PopulateSpireCommands(cmd *cobra.Command) {
+	journalsCmd := CreateJournalsCommand()
 	pingCmd := CreatePingCommand()
 
-	cmd.AddCommand(pingCmd)
+	cmd.AddCommand(journalsCmd, pingCmd)
 }
 
 func CreatePingCommand() *cobra.Command {
