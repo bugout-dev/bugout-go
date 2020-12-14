@@ -21,11 +21,11 @@ The bugout utility lets you interact with your Bugout resources from your comman
 		Version: bugout.Version,
 	}
 
-	broodCmd := broodcmd.CreateBroodCommand()
-	completionCmd := CreateBugoutCompletionCommand()
-	spireCmd := spirecmd.CreateSpireCommand()
+	broodcmd.PopulateBroodCommands(bugoutCmd)
+	spirecmd.PopulateSpireCommands(bugoutCmd)
 
-	bugoutCmd.AddCommand(broodCmd, completionCmd, spireCmd)
+	completionCmd := CreateBugoutCompletionCommand()
+	bugoutCmd.AddCommand(completionCmd)
 
 	return bugoutCmd
 }

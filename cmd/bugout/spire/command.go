@@ -7,26 +7,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func CreateSpireCommand() *cobra.Command {
-	spireCmd := &cobra.Command{
-		Use:   "spire",
-		Short: "Interact with Spire, the Bugout knowledge API",
-		Long: `Bugout: The knowledge base for software teams
-
-Spire is Bugout's knowledge API. You can use these commands to interact
-with your personal and team knowledge bases from your command line.`,
-	}
-
+func PopulateSpireCommands(cmd *cobra.Command) {
 	pingCmd := CreatePingCommand()
 
-	spireCmd.AddCommand(pingCmd)
-
-	return spireCmd
+	cmd.AddCommand(pingCmd)
 }
 
 func CreatePingCommand() *cobra.Command {
 	pingCmd := &cobra.Command{
-		Use:   "ping",
+		Use:   "ping-spire",
 		Short: "Ping Spire to see if it is active",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()

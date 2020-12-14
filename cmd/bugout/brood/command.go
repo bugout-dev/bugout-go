@@ -8,29 +8,18 @@ import (
 	bugout "github.com/bugout-dev/bugout-go/pkg"
 )
 
-func CreateBroodCommand() *cobra.Command {
-	broodCmd := &cobra.Command{
-		Use:   "brood",
-		Short: "Interact with Brood, the Bugout authentication API, from your command line",
-		Long: `Bugout: The knowledge base for software teams
-
-Brood is Bugout's authentication API. You can use these commands to interact with Bugout users and
-groups from your command line`,
-	}
-
+func PopulateBroodCommands(cmd *cobra.Command) {
 	groupsCmd := CreateGroupsCommand()
 	pingCmd := CreatePingCommand()
 	userCmd := CreateUserCommand()
 	versionCmd := CreateVersionCommand()
 
-	broodCmd.AddCommand(groupsCmd, pingCmd, userCmd, versionCmd)
-
-	return broodCmd
+	cmd.AddCommand(groupsCmd, pingCmd, userCmd, versionCmd)
 }
 
 func CreatePingCommand() *cobra.Command {
 	pingCmd := &cobra.Command{
-		Use:   "ping",
+		Use:   "ping-brood",
 		Short: "Ping Brood to see if it is active",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
@@ -54,7 +43,7 @@ func CreatePingCommand() *cobra.Command {
 
 func CreateVersionCommand() *cobra.Command {
 	pingCmd := &cobra.Command{
-		Use:   "version",
+		Use:   "version-brood",
 		Short: "Check Brood version",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
