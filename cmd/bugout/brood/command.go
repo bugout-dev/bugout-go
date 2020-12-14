@@ -18,11 +18,12 @@ Brood is Bugout's authentication API. You can use these commands to interact wit
 groups from your command line`,
 	}
 
+	groupsCmd := CreateGroupsCommand()
 	pingCmd := CreatePingCommand()
 	userCmd := CreateUserCommand()
 	versionCmd := CreateVersionCommand()
 
-	broodCmd.AddCommand(pingCmd, userCmd, versionCmd)
+	broodCmd.AddCommand(groupsCmd, pingCmd, userCmd, versionCmd)
 
 	return broodCmd
 }

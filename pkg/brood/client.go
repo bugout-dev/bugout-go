@@ -25,6 +25,9 @@ type BroodCaller interface {
 	GetUser(token string) (User, error)
 	VerifyUser(token, code string) (User, error)
 	ChangePassword(token, currentPassword, newPassword string) (User, error)
+	CreateGroup(token, name string) (Group, error)
+	GetUserGroups(token string) (UserGroupsList, error)
+	DeleteGroup(token, groupID string) (Group, error)
 }
 
 type BroodRoutes struct {
