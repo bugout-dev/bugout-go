@@ -1,9 +1,13 @@
 package bugout
 
-import "github.com/bugout-dev/bugout-go/pkg/brood"
+import (
+	"github.com/bugout-dev/bugout-go/pkg/brood"
+	"github.com/bugout-dev/bugout-go/pkg/spire"
+)
 
 type BugoutClient struct {
 	Brood brood.BroodCaller
+	Spire spire.SpireCaller
 }
 
 func ClientFromEnv() (BugoutClient, error) {
@@ -12,5 +16,10 @@ func ClientFromEnv() (BugoutClient, error) {
 		return BugoutClient{}, err
 	}
 
-	return BugoutClient{Brood: broodClient}, nil
+	spireClient, err := spire.ClientFromEnv()
+	if err != nil {
+		return BugoutClient{}, err
+	}
+
+	return BugoutClient{Brood: broodClient, Spire: spireClient}, nil
 }
