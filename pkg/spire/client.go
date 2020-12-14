@@ -22,6 +22,7 @@ type SpireCaller interface {
 	ListJournals(token string) (JournalsList, error)
 	UpdateJournal(token, journalID, name string) (Journal, error)
 	DeleteJournal(token, journalID string) (Journal, error)
+	CreateEntry(token, journalID, title, content string, tags []string, context EntryContext) (Entry, error)
 }
 
 type SpireRoutes struct {
