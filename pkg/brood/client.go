@@ -28,6 +28,7 @@ type BroodCaller interface {
 	CreateGroup(token, name string) (Group, error)
 	GetUserGroups(token string) (UserGroupsList, error)
 	DeleteGroup(token, groupID string) (Group, error)
+	RenameGroup(token, groupID, name string) (Group, error)
 	AddUserToGroup(token, groupID, username, role string) (UserGroup, error)
 	RemoveUserFromGroup(token, groupID, username string) (UserGroup, error)
 }

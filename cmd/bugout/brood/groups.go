@@ -19,10 +19,11 @@ func CreateGroupsCommand() *cobra.Command {
 	groupsCreateCmd := CreateGroupsCreateCommand()
 	groupsListCmd := CreateGroupsListCommand()
 	groupsDeleteCmd := CreateGroupsDeleteCommand()
+	groupsRenameCmd := CreateGroupsRenameCommand()
 	groupsAddUserCmd := CreateGroupsAddUserCommand()
 	groupsRemoveUserCmd := CreateGroupsRemoveUserCommand()
 
-	groupsCmd.AddCommand(groupsCreateCmd, groupsListCmd, groupsDeleteCmd, groupsAddUserCmd, groupsRemoveUserCmd)
+	groupsCmd.AddCommand(groupsCreateCmd, groupsListCmd, groupsDeleteCmd, groupsRenameCmd, groupsAddUserCmd, groupsRemoveUserCmd)
 
 	return groupsCmd
 }
@@ -31,7 +32,7 @@ func CreateGroupsCreateCommand() *cobra.Command {
 	var token, name string
 	groupsCreateCmd := &cobra.Command{
 		Use:   "create",
-		Short: "Create a new bugout groups",
+		Short: "Create a new bugout group",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
 			if err != nil {
@@ -110,6 +111,37 @@ func CreateGroupsDeleteCommand() *cobra.Command {
 	groupsDeleteCmd.MarkFlagRequired("id")
 
 	return groupsDeleteCmd
+}
+
+func CreateGroupsRenameCommand() *cobra.Command {
+	var token, groupID, name string
+	groupsRenameCmd := &cobra.Command{
+		Use:   "rename",
+		Short: "Rename a bugout group",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := bugout.ClientFromEnv()
+			if err != nil {
+				return err
+			}
+
+			groups, groupsErr := client.Brood.RenameGroup(token, groupID, name)
+			if groupsErr != nil {
+				return groupsErr
+			}
+
+			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(groups)
+			return encodeErr
+		},
+	}
+
+	groupsRenameCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	groupsRenameCmd.Flags().StringVarP(&groupID, "id", "i", "", "ID of group to delete")
+	groupsRenameCmd.Flags().StringVarP(&name, "name", "n", "", "Name of group to create")
+	groupsRenameCmd.MarkFlagRequired("token")
+	groupsRenameCmd.MarkFlagRequired("id")
+	groupsRenameCmd.MarkFlagRequired("name")
+
+	return groupsRenameCmd
 }
 
 func CreateGroupsAddUserCommand() *cobra.Command {
