@@ -27,7 +27,7 @@ with your personal and team knowledge bases from your command line.`,
 func CreatePingCommand() *cobra.Command {
 	pingCmd := &cobra.Command{
 		Use:   "ping",
-		Short: "Ping Brood to see if it is active",
+		Short: "Ping Spire to see if it is active",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
 			if err != nil {
