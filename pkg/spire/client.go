@@ -23,6 +23,13 @@ type SpireCaller interface {
 	UpdateJournal(token, journalID, name string) (Journal, error)
 	DeleteJournal(token, journalID string) (Journal, error)
 	CreateEntry(token, journalID, title, content string, tags []string, context EntryContext) (Entry, error)
+	DeleteEntry(token, journalID, entryID string) (Entry, error)
+	GetEntry(token, journalID, entryID string) (Entry, error)
+	ListEntries(token, journalID string, limit, offset int) (EntryResultsPage, error)
+	SearchEntries(token, journalID, searchQuery string, limit, offset int) (EntryResultsPage, error)
+	TagEntry(token, journalID, entryID string, tags []string) (Entry, error)
+	UntagEntry(token, journalID, entryID string, tags []string) (Entry, error)
+	UpdateEntry(token, journalID, entryID, title, content string) (Entry, error)
 }
 
 type SpireRoutes struct {

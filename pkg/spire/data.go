@@ -32,9 +32,23 @@ type entryCreateRequest struct {
 	ContextID   string   `json:"context_id,omitempty"`
 }
 
+type entryUpdateRequest struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
+type entryAddTagsRequest struct {
+	Tags []string `json:"tags"`
+}
+
+type entryRemoveTagRequest struct {
+	Tag string `json:"tag"`
+}
+
 type Entry struct {
-	Id          string   `json:"id"`
-	JournalURL  string   `json:"journal_url"`
+	Id          string   `json:"id,omitempty"`
+	Url         string   `json:"entry_url,omitempty"`
+	JournalURL  string   `json:"journal_url,omitempty"`
 	Title       string   `json:"title"`
 	Content     string   `json:"content"`
 	Tags        []string `json:"tags"`
@@ -42,8 +56,13 @@ type Entry struct {
 	UpdatedAt   string   `json:"updated_at"`
 	ContextUrl  string   `json:"context_url,omitempty"`
 	ContextType string   `json:"context_type,omitempty"`
+	Score       float64  `json:"score,omitempty"`
 }
 
-type EntriesList struct {
-	Entries []Entry `json:"entries"`
+type EntryResultsPage struct {
+	TotalResults int     `json:"total_results"`
+	Offset       int     `json:"offset,omitempty"`
+	NextOffset   int     `json:"next_offset,omitempty"`
+	MaxScore     float64 `json:"max_score"`
+	Results      []Entry `json:"results"`
 }
