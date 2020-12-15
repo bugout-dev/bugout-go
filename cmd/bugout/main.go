@@ -55,7 +55,8 @@ This is used to store things like bugout access tokens and active journal IDs.`,
 
 	initCmd := CreateBugoutStateInitCommand()
 	currentCmd := CreateBugoutStateCurrentCommand()
-	cmd.AddCommand(initCmd, currentCmd)
+	setCmd := CreateBugoutStateSetCommand()
+	cmd.AddCommand(initCmd, currentCmd, setCmd)
 
 	return cmd
 }
@@ -101,6 +102,29 @@ func CreateBugoutStateCurrentCommand() *cobra.Command {
 				value := viper.GetString(key)
 				fmt.Printf("%s: %s\n", key, value)
 			}
+		},
+	}
+
+	return cmd
+}
+
+func CreateBugoutStateSetCommand() *cobra.Command {
+	var key, value string
+	cmd := &cobra.Command{
+		Use:   "set KEY VALUE",
+		Short: "Set a key-value pair in the bugout state",
+		Long:  "Set a key-value pair in the bugout state\nValid keys: access_token,user_id,journal_id",
+		Args:  cobra.ExactArgs(2),
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			key = args[0]
+			value = args[1]
+			if key != "access_token" && key != "user_id" && key != "journal_id" {
+				return fmt.Errorf("Invalid key: %s. Valid keys: access_token,user_id,journal_id", key)
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			viper.Set(key, value)
 		},
 	}
 

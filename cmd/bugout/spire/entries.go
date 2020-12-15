@@ -57,7 +57,7 @@ func CreateEntriesCreateCommand() *cobra.Command {
 
 			return nil
 		},
-		PreRunE: cmdutils.TokenArgPopulator,
+		PreRunE: cmdutils.CompositePopulator(cmdutils.TokenArgPopulator, cmdutils.JournalIDArgPopulator),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -103,7 +103,6 @@ func CreateEntriesCreateCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&contentFile, "file", "f", "", "File containing contents of entry")
 	cmd.Flags().StringSliceVar(&tags, "tags", []string{}, "Tags to apply to the new entry (as a comma-separated list of strings)")
 	cmd.Flags().StringToStringVar(&contextMap, "context", map[string]string{}, "Context for the new entry (in the format type=<context type>,id=<context id>,url=<context url>)")
-	cmd.MarkFlagRequired("journal")
 	cmd.MarkFlagRequired("title")
 	cmd.MarkFlagFilename("file")
 
@@ -115,7 +114,7 @@ func CreateEntriesDeleteCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete",
 		Short:   "Delete an entry from a Bugout journal",
-		PreRunE: cmdutils.TokenArgPopulator,
+		PreRunE: cmdutils.CompositePopulator(cmdutils.TokenArgPopulator, cmdutils.JournalIDArgPopulator),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -135,7 +134,6 @@ func CreateEntriesDeleteCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal")
 	cmd.Flags().StringVarP(&entryID, "id", "i", "", "ID of entry")
-	cmd.MarkFlagRequired("journal")
 	cmd.MarkFlagRequired("id")
 
 	return cmd
@@ -146,7 +144,7 @@ func CreateEntriesGetCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "get",
 		Short:   "Get an entry from a Bugout journal",
-		PreRunE: cmdutils.TokenArgPopulator,
+		PreRunE: cmdutils.CompositePopulator(cmdutils.TokenArgPopulator, cmdutils.JournalIDArgPopulator),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -166,7 +164,6 @@ func CreateEntriesGetCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal")
 	cmd.Flags().StringVarP(&entryID, "id", "i", "", "ID of entry")
-	cmd.MarkFlagRequired("journal")
 	cmd.MarkFlagRequired("id")
 
 	return cmd
@@ -178,7 +175,7 @@ func CreateEntriesListCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
 		Short:   "List all entries in a Bugout journal",
-		PreRunE: cmdutils.TokenArgPopulator,
+		PreRunE: cmdutils.CompositePopulator(cmdutils.TokenArgPopulator, cmdutils.JournalIDArgPopulator),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -199,7 +196,6 @@ func CreateEntriesListCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal")
 	cmd.Flags().IntVarP(&limit, "limit", "N", 10, "Number of entries per page")
 	cmd.Flags().IntVarP(&offset, "offset", "n", 0, "Index of starting entry on current page")
-	cmd.MarkFlagRequired("journal")
 
 	return cmd
 }
@@ -210,7 +206,7 @@ func CreateEntriesSearchCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "search [query]",
 		Short:   "Search across the entries in a Bugout journal",
-		PreRunE: cmdutils.TokenArgPopulator,
+		PreRunE: cmdutils.CompositePopulator(cmdutils.TokenArgPopulator, cmdutils.JournalIDArgPopulator),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -233,7 +229,6 @@ func CreateEntriesSearchCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal")
 	cmd.Flags().IntVarP(&limit, "limit", "N", 10, "Number of entries per page")
 	cmd.Flags().IntVarP(&offset, "offset", "n", 0, "Index of starting entry on current page")
-	cmd.MarkFlagRequired("journal")
 
 	return cmd
 }
@@ -243,7 +238,7 @@ func CreateEntriesTagCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "tag [tags...]",
 		Short:   "Add tags to an entry",
-		PreRunE: cmdutils.TokenArgPopulator,
+		PreRunE: cmdutils.CompositePopulator(cmdutils.TokenArgPopulator, cmdutils.JournalIDArgPopulator),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -263,7 +258,6 @@ func CreateEntriesTagCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal")
 	cmd.Flags().StringVarP(&entryID, "id", "i", "", "ID of entry")
-	cmd.MarkFlagRequired("journal")
 	cmd.MarkFlagRequired("id")
 
 	return cmd
@@ -274,7 +268,7 @@ func CreateEntriesUntagCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "untag [tags...]",
 		Short:   "Remove tags from an entry",
-		PreRunE: cmdutils.TokenArgPopulator,
+		PreRunE: cmdutils.CompositePopulator(cmdutils.TokenArgPopulator, cmdutils.JournalIDArgPopulator),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -294,7 +288,6 @@ func CreateEntriesUntagCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal")
 	cmd.Flags().StringVarP(&entryID, "id", "i", "", "ID of entry")
-	cmd.MarkFlagRequired("journal")
 	cmd.MarkFlagRequired("id")
 
 	return cmd
@@ -312,7 +305,7 @@ func CreateEntriesUpdateCommand() *cobra.Command {
 
 			return nil
 		},
-		PreRunE: cmdutils.TokenArgPopulator,
+		PreRunE: cmdutils.CompositePopulator(cmdutils.TokenArgPopulator, cmdutils.JournalIDArgPopulator),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -346,7 +339,6 @@ func CreateEntriesUpdateCommand() *cobra.Command {
 	cmd.Flags().StringVar(&title, "title", "", "Title of new entry")
 	cmd.Flags().StringVarP(&content, "content", "c", "", "Content of entry")
 	cmd.Flags().StringVarP(&contentFile, "file", "f", "", "File containing contents of entry")
-	cmd.MarkFlagRequired("journal")
 	cmd.MarkFlagRequired("id")
 	cmd.MarkFlagRequired("title")
 	cmd.MarkFlagFilename("file")

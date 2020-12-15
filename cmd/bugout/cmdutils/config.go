@@ -32,3 +32,28 @@ func TokenArgPopulator(cmd *cobra.Command, args []string) error {
 	}
 	return cmd.Flags().Set("token", finalToken)
 }
+
+func JournalIDArgPopulator(cmd *cobra.Command, args []string) error {
+	flagToken, flagTokenErr := cmd.Flags().GetString("journal")
+	if flagTokenErr != nil {
+		return flagTokenErr
+	}
+	finalToken, err := MergeString(flagToken, "journal_id", "-j/--journal", viper.GetViper(), true)
+	if err != nil {
+		return err
+	}
+	return cmd.Flags().Set("journal", finalToken)
+
+}
+
+func CompositePopulator(populators ...cobra.PositionalArgs) cobra.PositionalArgs {
+	return func(cmd *cobra.Command, args []string) error {
+		for _, populator := range populators {
+			err := populator(cmd, args)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+}
