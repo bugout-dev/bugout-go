@@ -68,7 +68,8 @@ func (client SpireClient) GetJournal(token, journalID string) (Journal, error) {
 }
 
 func (client SpireClient) ListJournals(token string) (JournalsList, error) {
-	journalsRoute := client.Routes.Journals
+	// Have to add trailing slash because of how we set the route on API
+	journalsRoute := fmt.Sprintf("%s/", client.Routes.Journals)
 	request, requestErr := http.NewRequest("GET", journalsRoute, nil)
 	if requestErr != nil {
 		return JournalsList{}, requestErr

@@ -104,9 +104,10 @@ func CreateBugoutStateCurrentCommand() *cobra.Command {
 		Use:   "current",
 		Short: "Show the current bugout state",
 		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("Configuration file: %s\n", viper.ConfigFileUsed())
 			for _, key := range viper.AllKeys() {
 				value := viper.GetString(key)
-				fmt.Printf("%s: %s\n", key, value)
+				fmt.Printf("\t%s: %s\n", key, value)
 			}
 		},
 	}
