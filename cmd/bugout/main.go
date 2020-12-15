@@ -25,8 +25,11 @@ The bugout utility lets you interact with your Bugout resources from your comman
 			viper.SetConfigName("bugout")
 			viper.SetConfigType("toml")
 			viper.AddConfigPath("./")
-			viper.AddConfigPath("$HOME/.bugout/")
-			viper.AddConfigPath("$HOME/")
+			homeDir, homeDirErr := os.UserHomeDir()
+			if homeDirErr == nil {
+				viper.AddConfigPath(path.Join(homeDir, ".bugout"))
+				viper.AddConfigPath(homeDir)
+			}
 			return viper.ReadInConfig()
 		},
 		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
