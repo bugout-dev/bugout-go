@@ -124,7 +124,7 @@ func ClientFromEnv() (BroodClient, error) {
 
 	broodTimeoutSecondsRaw := os.Getenv("BUGOUT_BROOD_TIMEOUT_SECONDS")
 	if broodTimeoutSecondsRaw == "" {
-		broodTimeoutSecondsRaw = "1"
+		broodTimeoutSecondsRaw = "3"
 	}
 	broodTimeoutSeconds, conversionErr := strconv.Atoi(broodTimeoutSecondsRaw)
 	if conversionErr != nil {
