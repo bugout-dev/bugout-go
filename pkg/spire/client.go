@@ -22,6 +22,8 @@ type SpireCaller interface {
 	ListJournals(token string) (JournalsList, error)
 	UpdateJournal(token, journalID, name string) (Journal, error)
 	DeleteJournal(token, journalID string) (Journal, error)
+	AddJournalMember(token, journalID, memberID, memberType string, permissions []string) (JournalPermissionsList, error)
+	RemoveJournalMember(token, journalID, memberID, memberType string, permissions []string) (JournalPermissionsList, error)
 	CreateEntry(token, journalID, title, content string, tags []string, context EntryContext) (Entry, error)
 	DeleteEntry(token, journalID, entryID string) (Entry, error)
 	GetEntry(token, journalID, entryID string) (Entry, error)

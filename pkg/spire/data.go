@@ -17,6 +17,23 @@ type JournalsList struct {
 	Journals []Journal `json:"journals"`
 }
 
+type journalPermissionsRequest struct {
+	HolderID    string   `json:"holder_id"`
+	HolderType  string   `json:"holder_type"`
+	Permissions []string `json:"permission_list"`
+}
+
+type JournalPermission struct {
+	JournalID  string `json:"journal_id"`
+	HolderID   string `json:"holder_id"`
+	HolderType string `json:"holder_type"`
+	Permission string `json:"permission"`
+}
+
+type JournalPermissionsList struct {
+	Scopes []JournalPermission `json:"scopes"`
+}
+
 type EntryContext struct {
 	ContextType string
 	ContextID   string

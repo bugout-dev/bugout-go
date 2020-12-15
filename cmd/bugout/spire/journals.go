@@ -2,6 +2,8 @@ package spirecmd
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	bugout "github.com/bugout-dev/bugout-go/pkg"
 	"github.com/bugout-dev/bugout-go/pkg/spire"
@@ -19,8 +21,10 @@ func CreateJournalsCommand() *cobra.Command {
 	getCmd := CreateJournalsGetCommand()
 	listCmd := CreateJournalsListCommand()
 	updateCmd := CreateJournalsUpdateCommand()
+	addMemberCmd := CreateJournalsAddMemberCommand()
+	removeMemberCmd := CreateJournalsRemoveMemberCommand()
 
-	journalsCmd.AddCommand(createCmd, deleteCmd, getCmd, listCmd, updateCmd)
+	journalsCmd.AddCommand(createCmd, deleteCmd, getCmd, listCmd, updateCmd, addMemberCmd, removeMemberCmd)
 
 	return journalsCmd
 }
@@ -74,9 +78,9 @@ func CreateJournalsDeleteCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
-	cmd.Flags().StringVarP(&journalID, "id", "i", "", "ID of journal to delete")
+	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to delete")
 	cmd.MarkFlagRequired("token")
-	cmd.MarkFlagRequired("id")
+	cmd.MarkFlagRequired("journal")
 
 	return cmd
 }
@@ -102,9 +106,9 @@ func CreateJournalsGetCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
-	cmd.Flags().StringVarP(&journalID, "id", "i", "", "ID of journal to delete")
+	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to get")
 	cmd.MarkFlagRequired("token")
-	cmd.MarkFlagRequired("id")
+	cmd.MarkFlagRequired("journal")
 
 	return cmd
 }
@@ -164,10 +168,76 @@ func CreateJournalsUpdateCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
-	cmd.Flags().StringVarP(&journalID, "id", "i", "", "ID of journal to delete")
-	cmd.Flags().StringVarP(&name, "name", "n", "", "Name of journal to create")
+	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to update")
+	cmd.Flags().StringVarP(&name, "name", "n", "", "Updated name for journal")
 	cmd.MarkFlagRequired("token")
-	cmd.MarkFlagRequired("id")
+	cmd.MarkFlagRequired("journal")
+
+	return cmd
+}
+
+func CreateJournalsAddMemberCommand() *cobra.Command {
+	var token, journalID, memberID, memberType string
+	cmd := &cobra.Command{
+		Use:   "add-member [permissions...]",
+		Short: "Add a member to a Bugout journal.",
+		Long:  fmt.Sprintf("Add a member to a Bugout journal.\n\nValid permissions: %s", strings.Join(spire.ValidJournalPermissions(), ",")),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, clientErr := bugout.ClientFromEnv()
+			if clientErr != nil {
+				return clientErr
+			}
+
+			permissionsList, err := client.Spire.AddJournalMember(token, journalID, memberID, memberType, args)
+			if err != nil {
+				return err
+			}
+
+			json.NewEncoder(cmd.OutOrStdout()).Encode(permissionsList)
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to add a member to")
+	cmd.Flags().StringVar(&memberID, "member", "", "ID for user or group to add as a member")
+	cmd.Flags().StringVar(&memberType, "member-type", "user", fmt.Sprintf("Type of member (choices: %s)", strings.Join(spire.ValidMemberTypes(), ",")))
+	cmd.MarkFlagRequired("token")
+	cmd.MarkFlagRequired("journal")
+	cmd.MarkFlagRequired("member")
+
+	return cmd
+}
+
+func CreateJournalsRemoveMemberCommand() *cobra.Command {
+	var token, journalID, memberID, memberType string
+	cmd := &cobra.Command{
+		Use:   "remove-member [permissions...]",
+		Short: "Remove a member from a Bugout journal.",
+		Long:  fmt.Sprintf("Remove a member's permissions to a Bugout journal.\n\nValid permissions: %s", strings.Join(spire.ValidJournalPermissions(), ",")),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, clientErr := bugout.ClientFromEnv()
+			if clientErr != nil {
+				return clientErr
+			}
+
+			permissionsList, err := client.Spire.RemoveJournalMember(token, journalID, memberID, memberType, args)
+			if err != nil {
+				return err
+			}
+
+			json.NewEncoder(cmd.OutOrStdout()).Encode(permissionsList)
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to add a member to")
+	cmd.Flags().StringVar(&memberID, "member", "", "ID for user or group to add as a member")
+	cmd.Flags().StringVar(&memberType, "member-type", "user", fmt.Sprintf("Type of member (choices: %s)", strings.Join(spire.ValidMemberTypes(), ",")))
+	cmd.MarkFlagRequired("token")
+	cmd.MarkFlagRequired("journal")
+	cmd.MarkFlagRequired("member")
 
 	return cmd
 }
