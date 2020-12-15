@@ -30,10 +30,18 @@ The bugout utility lets you interact with your Bugout resources from your comman
 				viper.AddConfigPath(path.Join(homeDir, ".bugout"))
 				viper.AddConfigPath(homeDir)
 			}
-			return viper.ReadInConfig()
+			configErr := viper.ReadInConfig()
+			if _, ok := configErr.(viper.ConfigFileNotFoundError); ok {
+				return nil
+			}
+			return configErr
 		},
 		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
-			return viper.WriteConfig()
+			writeErr := viper.WriteConfig()
+			if _, ok := writeErr.(viper.ConfigFileNotFoundError); ok {
+				return nil
+			}
+			return writeErr
 		},
 	}
 
@@ -68,9 +76,6 @@ func CreateBugoutStateInitCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Create a bugout.toml configuration file in $HOME/.bugout/bugout.toml",
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			return nil
-		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userHome, userHomeErr := os.UserHomeDir()
 			if userHomeErr != nil {
