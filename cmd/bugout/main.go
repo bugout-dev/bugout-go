@@ -68,6 +68,9 @@ func CreateBugoutStateInitCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Create a bugout.toml configuration file in $HOME/.bugout/bugout.toml",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userHome, userHomeErr := os.UserHomeDir()
 			if userHomeErr != nil {
