@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/bugout-dev/bugout-go/cmd/bugout/cmdutils"
 	bugout "github.com/bugout-dev/bugout-go/pkg"
 	"github.com/bugout-dev/bugout-go/pkg/spire"
 	"github.com/spf13/cobra"
@@ -32,8 +33,9 @@ func CreateJournalsCommand() *cobra.Command {
 func CreateJournalsCreateCommand() *cobra.Command {
 	var token, name string
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create a new Bugout journal",
+		Use:     "create",
+		Short:   "Create a new Bugout journal",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -51,7 +53,6 @@ func CreateJournalsCreateCommand() *cobra.Command {
 
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	cmd.Flags().StringVarP(&name, "name", "n", "", "Name of journal to create")
-	cmd.MarkFlagRequired("token")
 	cmd.MarkFlagRequired("name")
 
 	return cmd
@@ -60,8 +61,9 @@ func CreateJournalsCreateCommand() *cobra.Command {
 func CreateJournalsDeleteCommand() *cobra.Command {
 	var token, journalID string
 	cmd := &cobra.Command{
-		Use:   "delete",
-		Short: "Delete a Bugout journal",
+		Use:     "delete",
+		Short:   "Delete a Bugout journal",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -79,7 +81,6 @@ func CreateJournalsDeleteCommand() *cobra.Command {
 
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to delete")
-	cmd.MarkFlagRequired("token")
 	cmd.MarkFlagRequired("journal")
 
 	return cmd
@@ -88,8 +89,9 @@ func CreateJournalsDeleteCommand() *cobra.Command {
 func CreateJournalsGetCommand() *cobra.Command {
 	var token, journalID string
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get a Bugout journal",
+		Use:     "get",
+		Short:   "Get a Bugout journal",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -107,7 +109,6 @@ func CreateJournalsGetCommand() *cobra.Command {
 
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to get")
-	cmd.MarkFlagRequired("token")
 	cmd.MarkFlagRequired("journal")
 
 	return cmd
@@ -116,8 +117,9 @@ func CreateJournalsGetCommand() *cobra.Command {
 func CreateJournalsListCommand() *cobra.Command {
 	var token string
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List all Bugout journal accessible by a given user",
+		Use:     "list",
+		Short:   "List all Bugout journal accessible by a given user",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -134,7 +136,6 @@ func CreateJournalsListCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
-	cmd.MarkFlagRequired("token")
 
 	return cmd
 }
@@ -142,8 +143,9 @@ func CreateJournalsListCommand() *cobra.Command {
 func CreateJournalsUpdateCommand() *cobra.Command {
 	var token, journalID, name string
 	cmd := &cobra.Command{
-		Use:   "update",
-		Short: "Update a Bugout journal",
+		Use:     "update",
+		Short:   "Update a Bugout journal",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -170,7 +172,6 @@ func CreateJournalsUpdateCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to update")
 	cmd.Flags().StringVarP(&name, "name", "n", "", "Updated name for journal")
-	cmd.MarkFlagRequired("token")
 	cmd.MarkFlagRequired("journal")
 
 	return cmd
@@ -179,9 +180,10 @@ func CreateJournalsUpdateCommand() *cobra.Command {
 func CreateJournalsAddMemberCommand() *cobra.Command {
 	var token, journalID, memberID, memberType string
 	cmd := &cobra.Command{
-		Use:   "add-member [permissions...]",
-		Short: "Add a member to a Bugout journal.",
-		Long:  fmt.Sprintf("Add a member to a Bugout journal.\n\nValid permissions: %s", strings.Join(spire.ValidJournalPermissions(), ",")),
+		Use:     "add-member [permissions...]",
+		Short:   "Add a member to a Bugout journal.",
+		Long:    fmt.Sprintf("Add a member to a Bugout journal.\n\nValid permissions: %s", strings.Join(spire.ValidJournalPermissions(), ",")),
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -202,7 +204,6 @@ func CreateJournalsAddMemberCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to add a member to")
 	cmd.Flags().StringVar(&memberID, "member", "", "ID for user or group to add as a member")
 	cmd.Flags().StringVar(&memberType, "member-type", "user", fmt.Sprintf("Type of member (choices: %s)", strings.Join(spire.ValidMemberTypes(), ",")))
-	cmd.MarkFlagRequired("token")
 	cmd.MarkFlagRequired("journal")
 	cmd.MarkFlagRequired("member")
 
@@ -212,9 +213,10 @@ func CreateJournalsAddMemberCommand() *cobra.Command {
 func CreateJournalsRemoveMemberCommand() *cobra.Command {
 	var token, journalID, memberID, memberType string
 	cmd := &cobra.Command{
-		Use:   "remove-member [permissions...]",
-		Short: "Remove a member from a Bugout journal.",
-		Long:  fmt.Sprintf("Remove a member's permissions to a Bugout journal.\n\nValid permissions: %s", strings.Join(spire.ValidJournalPermissions(), ",")),
+		Use:     "remove-member [permissions...]",
+		Short:   "Remove a member from a Bugout journal.",
+		Long:    fmt.Sprintf("Remove a member's permissions to a Bugout journal.\n\nValid permissions: %s", strings.Join(spire.ValidJournalPermissions(), ",")),
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
 			if clientErr != nil {
@@ -235,7 +237,6 @@ func CreateJournalsRemoveMemberCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal to add a member to")
 	cmd.Flags().StringVar(&memberID, "member", "", "ID for user or group to add as a member")
 	cmd.Flags().StringVar(&memberType, "member-type", "user", fmt.Sprintf("Type of member (choices: %s)", strings.Join(spire.ValidMemberTypes(), ",")))
-	cmd.MarkFlagRequired("token")
 	cmd.MarkFlagRequired("journal")
 	cmd.MarkFlagRequired("member")
 

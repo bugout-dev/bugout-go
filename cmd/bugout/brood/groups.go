@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/bugout-dev/bugout-go/cmd/bugout/cmdutils"
 	bugout "github.com/bugout-dev/bugout-go/pkg"
 )
 
@@ -31,8 +32,9 @@ func CreateGroupsCommand() *cobra.Command {
 func CreateGroupsCreateCommand() *cobra.Command {
 	var token, name string
 	groupsCreateCmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create a new bugout group",
+		Use:     "create",
+		Short:   "Create a new bugout group",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
 			if err != nil {
@@ -51,7 +53,6 @@ func CreateGroupsCreateCommand() *cobra.Command {
 
 	groupsCreateCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	groupsCreateCmd.Flags().StringVarP(&name, "name", "n", "", "Name of group to create")
-	groupsCreateCmd.MarkFlagRequired("token")
 	groupsCreateCmd.MarkFlagRequired("name")
 
 	return groupsCreateCmd
@@ -60,8 +61,9 @@ func CreateGroupsCreateCommand() *cobra.Command {
 func CreateGroupsListCommand() *cobra.Command {
 	var token string
 	groupsListCmd := &cobra.Command{
-		Use:   "list",
-		Short: "List groups for a given user",
+		Use:     "list",
+		Short:   "List groups for a given user",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
 			if err != nil {
@@ -79,7 +81,6 @@ func CreateGroupsListCommand() *cobra.Command {
 	}
 
 	groupsListCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
-	groupsListCmd.MarkFlagRequired("token")
 
 	return groupsListCmd
 }
@@ -87,8 +88,9 @@ func CreateGroupsListCommand() *cobra.Command {
 func CreateGroupsDeleteCommand() *cobra.Command {
 	var token, groupID string
 	groupsDeleteCmd := &cobra.Command{
-		Use:   "delete",
-		Short: "Delete a bugout group (by ID)",
+		Use:     "delete",
+		Short:   "Delete a bugout group (by ID)",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
 			if err != nil {
@@ -107,7 +109,6 @@ func CreateGroupsDeleteCommand() *cobra.Command {
 
 	groupsDeleteCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	groupsDeleteCmd.Flags().StringVarP(&groupID, "id", "i", "", "ID of group to delete")
-	groupsDeleteCmd.MarkFlagRequired("token")
 	groupsDeleteCmd.MarkFlagRequired("id")
 
 	return groupsDeleteCmd
@@ -116,8 +117,9 @@ func CreateGroupsDeleteCommand() *cobra.Command {
 func CreateGroupsRenameCommand() *cobra.Command {
 	var token, groupID, name string
 	groupsRenameCmd := &cobra.Command{
-		Use:   "rename",
-		Short: "Rename a bugout group",
+		Use:     "rename",
+		Short:   "Rename a bugout group",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
 			if err != nil {
@@ -137,7 +139,6 @@ func CreateGroupsRenameCommand() *cobra.Command {
 	groupsRenameCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	groupsRenameCmd.Flags().StringVarP(&groupID, "id", "i", "", "ID of group to delete")
 	groupsRenameCmd.Flags().StringVarP(&name, "name", "n", "", "Name of group to create")
-	groupsRenameCmd.MarkFlagRequired("token")
 	groupsRenameCmd.MarkFlagRequired("id")
 	groupsRenameCmd.MarkFlagRequired("name")
 
@@ -169,6 +170,7 @@ func CreateGroupsAddUserCommand() *cobra.Command {
 
 			return nil
 		},
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
 			if err != nil {
@@ -189,7 +191,6 @@ func CreateGroupsAddUserCommand() *cobra.Command {
 	groupsAddUserCmd.Flags().StringVarP(&groupID, "id", "i", "", "ID of group to add user to")
 	groupsAddUserCmd.Flags().StringVarP(&username, "username", "u", "", "Bugout username of user to add to group")
 	groupsAddUserCmd.Flags().StringVarP(&role, "role", "r", "", rolesHelp)
-	groupsAddUserCmd.MarkFlagRequired("token")
 	groupsAddUserCmd.MarkFlagRequired("id")
 	groupsAddUserCmd.MarkFlagRequired("username")
 	groupsAddUserCmd.MarkFlagRequired("role")
@@ -201,8 +202,9 @@ func CreateGroupsRemoveUserCommand() *cobra.Command {
 	var token, groupID, username string
 
 	groupsRemoveUserCmd := &cobra.Command{
-		Use:   "remove-user",
-		Short: "Remove a Bugout user from a group",
+		Use:     "remove-user",
+		Short:   "Remove a Bugout user from a group",
+		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, err := bugout.ClientFromEnv()
 			if err != nil {
@@ -222,7 +224,6 @@ func CreateGroupsRemoveUserCommand() *cobra.Command {
 	groupsRemoveUserCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 	groupsRemoveUserCmd.Flags().StringVarP(&groupID, "id", "i", "", "ID of group to add user to")
 	groupsRemoveUserCmd.Flags().StringVarP(&username, "username", "u", "", "Bugout username of user to add to group")
-	groupsRemoveUserCmd.MarkFlagRequired("token")
 	groupsRemoveUserCmd.MarkFlagRequired("id")
 	groupsRemoveUserCmd.MarkFlagRequired("username")
 

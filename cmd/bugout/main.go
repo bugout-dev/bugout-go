@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	broodcmd "github.com/bugout-dev/bugout-go/cmd/bugout/brood"
 	spirecmd "github.com/bugout-dev/bugout-go/cmd/bugout/spire"
@@ -19,15 +21,90 @@ func CreateBugoutCommand() *cobra.Command {
 
 The bugout utility lets you interact with your Bugout resources from your command line.`,
 		Version: bugout.Version,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			viper.SetConfigName("bugout")
+			viper.SetConfigType("toml")
+			viper.AddConfigPath("./")
+			viper.AddConfigPath("$HOME/.bugout/")
+			viper.AddConfigPath("$HOME/")
+			return viper.ReadInConfig()
+		},
+		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
+			return viper.WriteConfig()
+		},
 	}
 
 	broodcmd.PopulateBroodCommands(bugoutCmd)
 	spirecmd.PopulateSpireCommands(bugoutCmd)
 
 	completionCmd := CreateBugoutCompletionCommand()
-	bugoutCmd.AddCommand(completionCmd)
+	stateCmd := CreateBugoutStateCommand()
+	bugoutCmd.AddCommand(completionCmd, stateCmd)
 
 	return bugoutCmd
+}
+
+func CreateBugoutStateCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "state",
+		Short: "Maintain bugout state across invocations",
+		Long: `Operations that allow you to maintain and inspect bugout state between bugout invocations.
+
+This is used to store things like bugout access tokens and active journal IDs.`,
+	}
+
+	initCmd := CreateBugoutStateInitCommand()
+	currentCmd := CreateBugoutStateCurrentCommand()
+	cmd.AddCommand(initCmd, currentCmd)
+
+	return cmd
+}
+
+func CreateBugoutStateInitCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "init",
+		Short: "Create a bugout.toml configuration file in $HOME/.bugout/bugout.toml",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			userHome, userHomeErr := os.UserHomeDir()
+			if userHomeErr != nil {
+				return userHomeErr
+			}
+
+			bugoutDirPath := path.Join(userHome, ".bugout")
+			stat, statErr := os.Stat(bugoutDirPath)
+			nonexistence := os.IsNotExist(statErr)
+			if !nonexistence && !stat.IsDir() {
+				return fmt.Errorf("%s exists but is not a directory", bugoutDirPath)
+			}
+			if nonexistence {
+				os.Mkdir(bugoutDirPath, 0755)
+			}
+
+			configFilePath := path.Join(bugoutDirPath, "bugout.toml")
+			configFile, configFileErr := os.OpenFile(configFilePath, os.O_RDONLY|os.O_CREATE, 0644)
+			if configFileErr != nil {
+				return configFileErr
+			}
+			return configFile.Close()
+		},
+	}
+
+	return cmd
+}
+
+func CreateBugoutStateCurrentCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "current",
+		Short: "Show the current bugout state",
+		Run: func(cmd *cobra.Command, args []string) {
+			for _, key := range viper.AllKeys() {
+				value := viper.GetString(key)
+				fmt.Printf("%s: %s\n", key, value)
+			}
+		},
+	}
+
+	return cmd
 }
 
 func CreateBugoutCompletionCommand() *cobra.Command {
