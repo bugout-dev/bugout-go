@@ -24,7 +24,7 @@ The bugout utility lets you interact with your Bugout resources from your comman
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			viper.SetConfigName("bugout")
 			viper.SetConfigType("toml")
-			viper.AddConfigPath("./")
+			viper.AddConfigPath(".")
 			homeDir, homeDirErr := os.UserHomeDir()
 			if homeDirErr == nil {
 				viper.AddConfigPath(path.Join(homeDir, ".bugout"))
