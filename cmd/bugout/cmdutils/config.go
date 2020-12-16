@@ -2,49 +2,76 @@ package cmdutils
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-func MergeString(stringVar, configKey, flag string, config *viper.Viper, required bool) (string, error) {
-	configVal := config.GetString(configKey)
+func MergeString(stringVar, envName string, onNotSet error) (string, error) {
 	finalVal := stringVar
-	if stringVar == "" && configVal != "" {
-		finalVal = configVal
+
+	envVar := os.Getenv(envName)
+	if stringVar == "" && envVar != "" {
+		finalVal = envVar
 	}
 
-	if finalVal == "" && required {
-		return finalVal, fmt.Errorf("Please set %s to use this command", flag)
+	if finalVal == "" && onNotSet != nil {
+		return finalVal, onNotSet
 	}
 
 	return finalVal, nil
 }
 
-func TokenArgPopulator(cmd *cobra.Command, args []string) error {
-	flagToken, flagTokenErr := cmd.Flags().GetString("token")
-	if flagTokenErr != nil {
-		return flagTokenErr
-	}
-	finalToken, err := MergeString(flagToken, "access_token", "-t/--token", viper.GetViper(), true)
-	if err != nil {
-		return err
-	}
-	return cmd.Flags().Set("token", finalToken)
+const EnvKeyBugoutBroodAPI string = "BUGOUT_BROOD_API"
+const EnvKeyBugoutSpireAPI string = "BUGOUT_SPIRE_API"
+const EnvKeyBugoutAccessToken string = "BUGOUT_ACCESS_TOKEN"
+const EnvKeyBugoutJournalID string = "BUGOUT_JOURNAL_ID"
+
+var EnvVars []string = []string{
+	EnvKeyBugoutBroodAPI,
+	EnvKeyBugoutSpireAPI,
+	EnvKeyBugoutAccessToken,
+	EnvKeyBugoutJournalID,
 }
 
-func JournalIDArgPopulator(cmd *cobra.Command, args []string) error {
-	flagToken, flagTokenErr := cmd.Flags().GetString("journal")
-	if flagTokenErr != nil {
-		return flagTokenErr
+func IsValidEnvVar(key string) bool {
+	for _, validKey := range EnvVars {
+		if key == validKey {
+			return true
+		}
 	}
-	finalToken, err := MergeString(flagToken, "journal_id", "-j/--journal", viper.GetViper(), true)
-	if err != nil {
-		return err
-	}
-	return cmd.Flags().Set("journal", finalToken)
 
+	return false
 }
+
+func GenerateArgPopulator(flagName, envName string, required bool) cobra.PositionalArgs {
+	return func(cmd *cobra.Command, args []string) error {
+		// TODO(zomglings): Make this a compile time check.
+		if !IsValidEnvVar(envName) {
+			return fmt.Errorf("Invalid environment variable: %s. Choices: %s", envName, strings.Join(EnvVars, ","))
+		}
+
+		flagToken, flagTokenErr := cmd.Flags().GetString(flagName)
+		if flagTokenErr != nil {
+			return flagTokenErr
+		}
+
+		var onNotSet error = nil
+		if required {
+			onNotSet = fmt.Errorf("Please set the --%s flag or the %s environment variable", flagName, envName)
+		}
+
+		finalToken, err := MergeString(flagToken, envName, onNotSet)
+		if err != nil {
+			return err
+		}
+		return cmd.Flags().Set(flagName, finalToken)
+	}
+}
+
+var TokenArgPopulator cobra.PositionalArgs = GenerateArgPopulator("token", EnvKeyBugoutAccessToken, true)
+var JournalIDArgPopulator cobra.PositionalArgs = GenerateArgPopulator("journal", EnvKeyBugoutJournalID, true)
 
 func CompositePopulator(populators ...cobra.PositionalArgs) cobra.PositionalArgs {
 	return func(cmd *cobra.Command, args []string) error {

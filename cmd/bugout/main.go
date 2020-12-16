@@ -3,10 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"path"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	broodcmd "github.com/bugout-dev/bugout-go/cmd/bugout/brood"
 	spirecmd "github.com/bugout-dev/bugout-go/cmd/bugout/spire"
@@ -21,126 +19,15 @@ func CreateBugoutCommand() *cobra.Command {
 
 The bugout utility lets you interact with your Bugout resources from your command line.`,
 		Version: bugout.Version,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			viper.SetConfigName("bugout")
-			viper.SetConfigType("toml")
-			viper.AddConfigPath(".")
-			homeDir, homeDirErr := os.UserHomeDir()
-			if homeDirErr == nil {
-				viper.AddConfigPath(path.Join(homeDir, ".bugout"))
-				viper.AddConfigPath(homeDir)
-			}
-			configErr := viper.ReadInConfig()
-			if _, ok := configErr.(viper.ConfigFileNotFoundError); ok {
-				return nil
-			}
-			return configErr
-		},
-		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
-			writeErr := viper.WriteConfig()
-			if _, ok := writeErr.(viper.ConfigFileNotFoundError); ok {
-				return nil
-			}
-			return writeErr
-		},
 	}
 
 	broodcmd.PopulateBroodCommands(bugoutCmd)
 	spirecmd.PopulateSpireCommands(bugoutCmd)
 
 	completionCmd := CreateBugoutCompletionCommand()
-	stateCmd := CreateBugoutStateCommand()
-	bugoutCmd.AddCommand(completionCmd, stateCmd)
+	bugoutCmd.AddCommand(completionCmd)
 
 	return bugoutCmd
-}
-
-func CreateBugoutStateCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "state",
-		Short: "Maintain bugout state across invocations",
-		Long: `Operations that allow you to maintain and inspect bugout state between bugout invocations.
-
-This is used to store things like bugout access tokens and active journal IDs.`,
-	}
-
-	initCmd := CreateBugoutStateInitCommand()
-	currentCmd := CreateBugoutStateCurrentCommand()
-	setCmd := CreateBugoutStateSetCommand()
-	cmd.AddCommand(initCmd, currentCmd, setCmd)
-
-	return cmd
-}
-
-func CreateBugoutStateInitCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Create a bugout.toml configuration file in $HOME/.bugout/bugout.toml",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			userHome, userHomeErr := os.UserHomeDir()
-			if userHomeErr != nil {
-				return userHomeErr
-			}
-
-			bugoutDirPath := path.Join(userHome, ".bugout")
-			stat, statErr := os.Stat(bugoutDirPath)
-			nonexistence := os.IsNotExist(statErr)
-			if !nonexistence && !stat.IsDir() {
-				return fmt.Errorf("%s exists but is not a directory", bugoutDirPath)
-			}
-			if nonexistence {
-				os.Mkdir(bugoutDirPath, 0755)
-			}
-
-			configFilePath := path.Join(bugoutDirPath, "bugout.toml")
-			configFile, configFileErr := os.OpenFile(configFilePath, os.O_RDONLY|os.O_CREATE, 0644)
-			if configFileErr != nil {
-				return configFileErr
-			}
-			return configFile.Close()
-		},
-	}
-
-	return cmd
-}
-
-func CreateBugoutStateCurrentCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "current",
-		Short: "Show the current bugout state",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("Configuration file: %s\n", viper.ConfigFileUsed())
-			for _, key := range viper.AllKeys() {
-				value := viper.GetString(key)
-				fmt.Printf("\t%s: %s\n", key, value)
-			}
-		},
-	}
-
-	return cmd
-}
-
-func CreateBugoutStateSetCommand() *cobra.Command {
-	var key, value string
-	cmd := &cobra.Command{
-		Use:   "set KEY VALUE",
-		Short: "Set a key-value pair in the bugout state",
-		Long:  "Set a key-value pair in the bugout state\nValid keys: access_token,user_id,journal_id",
-		Args:  cobra.ExactArgs(2),
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			key = args[0]
-			value = args[1]
-			if key != "access_token" && key != "user_id" && key != "journal_id" {
-				return fmt.Errorf("Invalid key: %s. Valid keys: access_token,user_id,journal_id", key)
-			}
-			return nil
-		},
-		Run: func(cmd *cobra.Command, args []string) {
-			viper.Set(key, value)
-		},
-	}
-
-	return cmd
 }
 
 func CreateBugoutCompletionCommand() *cobra.Command {

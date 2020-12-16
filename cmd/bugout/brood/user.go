@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/bugout-dev/bugout-go/cmd/bugout/cmdutils"
 	bugout "github.com/bugout-dev/bugout-go/pkg"
@@ -31,7 +30,6 @@ func CreateUserCommand() *cobra.Command {
 
 func CreateUserCreateCommand() *cobra.Command {
 	var username, email, password string
-	var save bool
 	userCreateCmd := &cobra.Command{
 		Use:   "create",
 		Short: "Create a new bugout user",
@@ -46,10 +44,6 @@ func CreateUserCreateCommand() *cobra.Command {
 				return userErr
 			}
 
-			if save {
-				viper.Set("user_id", user.Id)
-			}
-
 			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(user)
 			return encodeErr
 		},
@@ -58,7 +52,6 @@ func CreateUserCreateCommand() *cobra.Command {
 	userCreateCmd.Flags().StringVarP(&username, "username", "u", "", "Desired username")
 	userCreateCmd.Flags().StringVarP(&email, "email", "e", "", "Email address for user")
 	userCreateCmd.Flags().StringVarP(&password, "password", "p", "", "Password for user")
-	userCreateCmd.Flags().BoolVarP(&save, "save", "s", false, "Set this flag to save the user ID into the bugout state")
 	userCreateCmd.MarkFlagRequired("username")
 	userCreateCmd.MarkFlagRequired("email")
 	userCreateCmd.MarkFlagRequired("password")
@@ -68,7 +61,6 @@ func CreateUserCreateCommand() *cobra.Command {
 
 func CreateUserLoginCommand() *cobra.Command {
 	var username, password, tokenType, note string
-	var save bool
 	userLoginCmd := &cobra.Command{
 		Use:   "login",
 		Short: "Generate an access token for the given Bugout user",
@@ -90,10 +82,6 @@ func CreateUserLoginCommand() *cobra.Command {
 				}
 			}
 
-			if save {
-				viper.Set("access_token", token)
-			}
-
 			fmt.Println(token)
 
 			return nil
@@ -104,7 +92,6 @@ func CreateUserLoginCommand() *cobra.Command {
 	userLoginCmd.Flags().StringVarP(&password, "password", "p", "", "Password for user")
 	userLoginCmd.Flags().StringVarP(&tokenType, "type", "t", "", "Token type")
 	userLoginCmd.Flags().StringVar(&note, "note", "Created using bugout CLI", "Note about the token")
-	userLoginCmd.Flags().BoolVarP(&save, "save", "s", false, "Set this flag to save the user ID into the bugout state")
 	userLoginCmd.MarkFlagRequired("username")
 	userLoginCmd.MarkFlagRequired("password")
 
@@ -143,7 +130,6 @@ The user is identified by a Bugout access token.`,
 
 func CreateUserGetCommand() *cobra.Command {
 	var token string
-	var save bool
 	userGetCmd := &cobra.Command{
 		Use:     "get",
 		Short:   "Get the user represented by a token",
@@ -159,17 +145,12 @@ func CreateUserGetCommand() *cobra.Command {
 				return err
 			}
 
-			if save {
-				viper.Set("user_id", user.Id)
-			}
-
 			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(&user)
 			return encodeErr
 		},
 	}
 
 	userGetCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
-	userGetCmd.Flags().BoolVarP(&save, "save", "s", false, "Set this flag to save the user ID into the bugout state")
 
 	return userGetCmd
 }
