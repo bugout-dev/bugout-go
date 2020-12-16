@@ -11,7 +11,7 @@ import (
 )
 
 func (client SpireClient) CreateJournal(token, name string) (Journal, error) {
-	journalsRoute := client.Routes.Journals
+	journalsRoute := fmt.Sprintf("%s/", client.Routes.Journals)
 	requestBody := journalCreateRequest{Name: name}
 	requestBuffer := new(bytes.Buffer)
 	encodeErr := json.NewEncoder(requestBuffer).Encode(requestBody)
