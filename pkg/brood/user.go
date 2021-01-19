@@ -1,8 +1,10 @@
 package brood
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -11,6 +13,14 @@ import (
 
 	"github.com/bugout-dev/bugout-go/pkg/utils"
 )
+
+func getUserID(decoder *json.Decoder) (string, error) {
+	userIDWrapper := struct {
+		UserID string `json:"user_id"`
+	}{}
+	decodeErr := decoder.Decode(&userIDWrapper)
+	return userIDWrapper.UserID, decodeErr
+}
 
 func (client BroodClient) CreateUser(username, email, password string) (User, error) {
 	userRoute := client.Routes.User
@@ -24,15 +34,25 @@ func (client BroodClient) CreateUser(username, email, password string) (User, er
 	}
 	defer response.Body.Close()
 
+	var buf bytes.Buffer
+	bodyReader := io.TeeReader(response.Body, &buf)
+
 	statusErr := utils.HTTPStatusCheck(response)
 	if statusErr != nil {
 		return User{}, statusErr
 	}
 
 	var user User
-	decodeErr := json.NewDecoder(response.Body).Decode(&user)
+	decodeErr := json.NewDecoder(bodyReader).Decode(&user)
 	if decodeErr != nil {
 		return user, decodeErr
+	}
+	if user.Id == "" {
+		userID, decodeErr := getUserID(json.NewDecoder(&buf))
+		if decodeErr != nil {
+			return user, decodeErr
+		}
+		user.Id = userID
 	}
 
 	return user, nil
@@ -137,14 +157,28 @@ func (client BroodClient) GetUser(token string) (User, error) {
 	}
 	defer response.Body.Close()
 
+	var buf bytes.Buffer
+	bodyReader := io.TeeReader(response.Body, &buf)
+
 	statusErr := utils.HTTPStatusCheck(response)
 	if statusErr != nil {
 		return User{}, statusErr
 	}
 
 	var user User
-	decodeErr := json.NewDecoder(response.Body).Decode(&user)
-	return user, decodeErr
+	decodeErr := json.NewDecoder(bodyReader).Decode(&user)
+	if decodeErr != nil {
+		return user, decodeErr
+	}
+	if user.Id == "" {
+		userID, decodeErr := getUserID(json.NewDecoder(&buf))
+		if decodeErr != nil {
+			return user, decodeErr
+		}
+		user.Id = userID
+	}
+
+	return user, nil
 }
 
 func (client BroodClient) VerifyUser(token, code string) (User, error) {
@@ -168,14 +202,28 @@ func (client BroodClient) VerifyUser(token, code string) (User, error) {
 	}
 	defer response.Body.Close()
 
+	var buf bytes.Buffer
+	bodyReader := io.TeeReader(response.Body, &buf)
+
 	statusErr := utils.HTTPStatusCheck(response)
 	if statusErr != nil {
 		return User{}, statusErr
 	}
 
 	var user User
-	decodeErr := json.NewDecoder(response.Body).Decode(&user)
-	return user, decodeErr
+	decodeErr := json.NewDecoder(bodyReader).Decode(&user)
+	if decodeErr != nil {
+		return user, decodeErr
+	}
+	if user.Id == "" {
+		userID, decodeErr := getUserID(json.NewDecoder(&buf))
+		if decodeErr != nil {
+			return user, decodeErr
+		}
+		user.Id = userID
+	}
+
+	return user, nil
 }
 
 func (client BroodClient) ChangePassword(token, currentPassword, newPassword string) (User, error) {
@@ -200,12 +248,26 @@ func (client BroodClient) ChangePassword(token, currentPassword, newPassword str
 	}
 	defer response.Body.Close()
 
+	var buf bytes.Buffer
+	bodyReader := io.TeeReader(response.Body, &buf)
+
 	statusErr := utils.HTTPStatusCheck(response)
 	if statusErr != nil {
 		return User{}, statusErr
 	}
 
 	var user User
-	decodeErr := json.NewDecoder(response.Body).Decode(&user)
-	return user, decodeErr
+	decodeErr := json.NewDecoder(bodyReader).Decode(&user)
+	if decodeErr != nil {
+		return user, decodeErr
+	}
+	if user.Id == "" {
+		userID, decodeErr := getUserID(json.NewDecoder(&buf))
+		if decodeErr != nil {
+			return user, decodeErr
+		}
+		user.Id = userID
+	}
+
+	return user, nil
 }
