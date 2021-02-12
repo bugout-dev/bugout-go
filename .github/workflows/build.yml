@@ -1,0 +1,15 @@
+name: Build bugout command-line tool
+
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15.6
+      - name: Build bugout binary
+        run: |
+          go build -o bugout cmd/bugout/main.go
