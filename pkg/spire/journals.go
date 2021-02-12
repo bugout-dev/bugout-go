@@ -165,7 +165,7 @@ func IsValidMemberType(memberType string) bool {
 }
 
 func ValidJournalPermissions() []string {
-	return []string{"journals.read", "journals.update", "journals.delete"}
+	return []string{"journals.read", "journals.update", "journals.delete", "journals.entries.read", "journals.entries.create", "journals.entries.update", "journals.entries.delete"}
 }
 
 func IsValidJournalPermission(permission string) bool {
