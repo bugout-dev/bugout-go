@@ -3,7 +3,6 @@ package cmdutils
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -23,14 +22,10 @@ func MergeString(stringVar, envName string, onNotSet error) (string, error) {
 	return finalVal, nil
 }
 
-const EnvKeyBugoutBroodAPI string = "BUGOUT_BROOD_API"
-const EnvKeyBugoutSpireAPI string = "BUGOUT_SPIRE_API"
 const EnvKeyBugoutAccessToken string = "BUGOUT_ACCESS_TOKEN"
 const EnvKeyBugoutJournalID string = "BUGOUT_JOURNAL_ID"
 
 var EnvVars []string = []string{
-	EnvKeyBugoutBroodAPI,
-	EnvKeyBugoutSpireAPI,
 	EnvKeyBugoutAccessToken,
 	EnvKeyBugoutJournalID,
 }
@@ -47,11 +42,6 @@ func IsValidEnvVar(key string) bool {
 
 func GenerateArgPopulator(flagName, envName string, required bool) cobra.PositionalArgs {
 	return func(cmd *cobra.Command, args []string) error {
-		// TODO(zomglings): Make this a compile time check.
-		if !IsValidEnvVar(envName) {
-			return fmt.Errorf("Invalid environment variable: %s. Choices: %s", envName, strings.Join(EnvVars, ","))
-		}
-
 		flagToken, flagTokenErr := cmd.Flags().GetString(flagName)
 		if flagTokenErr != nil {
 			return flagTokenErr

@@ -8,6 +8,7 @@ import (
 
 	broodcmd "github.com/bugout-dev/bugout-go/cmd/bugout/brood"
 	spirecmd "github.com/bugout-dev/bugout-go/cmd/bugout/spire"
+	trapcmd "github.com/bugout-dev/bugout-go/cmd/bugout/trap"
 	bugout "github.com/bugout-dev/bugout-go/pkg"
 )
 
@@ -23,6 +24,7 @@ The bugout utility lets you interact with your Bugout resources from your comman
 
 	broodcmd.PopulateBroodCommands(bugoutCmd)
 	spirecmd.PopulateSpireCommands(bugoutCmd)
+	trapcmd.PopulateTrapCommands(bugoutCmd)
 
 	completionCmd := CreateBugoutCompletionCommand()
 	bugoutCmd.AddCommand(completionCmd)
