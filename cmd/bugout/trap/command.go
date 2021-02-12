@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -48,6 +49,7 @@ func CreateTrapCommand() *cobra.Command {
 			}
 
 			envvars := os.Environ()
+			sort.Strings(envvars)
 			quotedEnvvars := make([]string, len(envvars))
 			for i, envvar := range envvars {
 				quotedEnvvars[i] = fmt.Sprintf("`%s`", envvar)
