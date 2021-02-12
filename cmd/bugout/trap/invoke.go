@@ -1,21 +1,48 @@
 package trapcmd
 
 import (
-	"bytes"
+	"io"
 	"os/exec"
+	"strings"
+	"sync"
+
+	"github.com/spf13/cobra"
 )
 
 type InvocationResult struct {
-	ExitCode  int
-	OutBuffer *bytes.Buffer
-	ErrBuffer *bytes.Buffer
+	ExitCode int
+	Stdout   string
+	Stderr   string
 }
 
-func RunWrappedCommand(invocation []string) (InvocationResult, error) {
+func RunWrappedCommand(trapCmd *cobra.Command, invocation []string) (*InvocationResult, error) {
+	var wg sync.WaitGroup
 	cmd := exec.Command(invocation[0], invocation[1:]...)
-	var outBuffer, errBuffer bytes.Buffer
-	cmd.Stdout = &outBuffer
-	cmd.Stderr = &errBuffer
+	cmd.Stdin = trapCmd.InOrStdin()
+
+	outReader, stdoutPipeErr := cmd.StdoutPipe()
+	if stdoutPipeErr != nil {
+		return &InvocationResult{}, stdoutPipeErr
+	}
+	errReader, stderrPipeErr := cmd.StderrPipe()
+	if stderrPipeErr != nil {
+		return &InvocationResult{}, stderrPipeErr
+	}
+
+	var outBuilder, errBuilder strings.Builder
+	stdoutReader := io.TeeReader(outReader, &outBuilder)
+	stderrReader := io.TeeReader(errReader, &errBuilder)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		io.Copy(trapCmd.OutOrStdout(), stdoutReader)
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		io.Copy(trapCmd.ErrOrStderr(), stderrReader)
+	}()
 
 	exitCode := 0
 
@@ -31,6 +58,6 @@ func RunWrappedCommand(invocation []string) (InvocationResult, error) {
 			err = runErr
 		}
 	}
-
-	return InvocationResult{ExitCode: exitCode, OutBuffer: &outBuffer, ErrBuffer: &errBuffer}, err
+	wg.Wait()
+	return &InvocationResult{ExitCode: exitCode, Stdout: outBuilder.String(), Stderr: errBuilder.String()}, err
 }

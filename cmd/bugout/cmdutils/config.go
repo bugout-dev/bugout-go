@@ -74,3 +74,12 @@ func CompositePopulator(populators ...cobra.PositionalArgs) cobra.PositionalArgs
 		return nil
 	}
 }
+
+func BugoutURL() string {
+	defaultBugoutURL := "https://bugout.dev"
+	bugoutURL := os.Getenv("BUGOUT_URL")
+	if bugoutURL == "" {
+		bugoutURL = defaultBugoutURL
+	}
+	return bugoutURL
+}

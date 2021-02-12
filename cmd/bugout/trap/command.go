@@ -1,8 +1,8 @@
 package trapcmd
 
 import (
-	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/spf13/cobra"
 
@@ -40,7 +40,7 @@ Specify the wrapped command using "--" followed by the command:
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			result, err := RunWrappedCommand(args)
+			result, err := RunWrappedCommand(cmd, args)
 			if err != nil {
 				return err
 			}
@@ -57,8 +57,8 @@ Specify the wrapped command using "--" followed by the command:
 				return err
 			}
 
-			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(response)
-			return encodeErr
+			cmd.ErrOrStderr().Write([]byte(fmt.Sprintf("\n\nBugout entry created at: %s/journals/%s/%s\n", cmdutils.BugoutURL(), journalID, response.Id)))
+			return nil
 		},
 	}
 
