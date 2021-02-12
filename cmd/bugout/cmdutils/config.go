@@ -23,14 +23,10 @@ func MergeString(stringVar, envName string, onNotSet error) (string, error) {
 	return finalVal, nil
 }
 
-const EnvKeyBugoutBroodAPI string = "BUGOUT_BROOD_API"
-const EnvKeyBugoutSpireAPI string = "BUGOUT_SPIRE_API"
 const EnvKeyBugoutAccessToken string = "BUGOUT_ACCESS_TOKEN"
 const EnvKeyBugoutJournalID string = "BUGOUT_JOURNAL_ID"
 
 var EnvVars []string = []string{
-	EnvKeyBugoutBroodAPI,
-	EnvKeyBugoutSpireAPI,
 	EnvKeyBugoutAccessToken,
 	EnvKeyBugoutJournalID,
 }
