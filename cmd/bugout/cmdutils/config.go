@@ -2,9 +2,7 @@ package cmdutils
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -43,9 +41,6 @@ func IsValidEnvVar(key string) bool {
 }
 
 func GenerateArgPopulator(flagName, envName string, required bool) cobra.PositionalArgs {
-	if !IsValidEnvVar(envName) {
-		log.Fatalf("Invalid environment variable: %s. Choices: %s", envName, strings.Join(EnvVars, ","))
-	}
 	return func(cmd *cobra.Command, args []string) error {
 		flagToken, flagTokenErr := cmd.Flags().GetString(flagName)
 		if flagTokenErr != nil {
