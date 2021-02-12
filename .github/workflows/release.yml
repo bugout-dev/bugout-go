@@ -33,7 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: "Bugout Go client - ${{ github_ref }}"
+          release_name: "Bugout Go client - ${{ github.ref }}"
           body: |
             Version ${{ github.ref }} of the Bugout Go client library and command line tool
           draft: true
