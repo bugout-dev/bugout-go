@@ -17,21 +17,21 @@ type TrapEntry struct {
 	Context spire.EntryContext
 }
 
-func Render(invocation []string, result InvocationResult, title string, tags []string, showEnv bool) TrapEntry {
+func Render(invocation []string, result *InvocationResult, title string, tags []string, showEnv bool) TrapEntry {
 	renderedTitle := RenderTitle(invocation, result, title, tags, showEnv)
 	renderedTags := RenderTags(invocation, result, title, tags, showEnv)
 	renderedContent := RenderContent(invocation, result, title, tags, showEnv)
 	return TrapEntry{Title: renderedTitle, Content: renderedContent, Tags: renderedTags, Context: spire.EntryContext{ContextType: "trap"}}
 }
 
-func RenderTitle(invocation []string, result InvocationResult, title string, tags []string, showEnv bool) string {
+func RenderTitle(invocation []string, result *InvocationResult, title string, tags []string, showEnv bool) string {
 	if title != "" {
 		return title
 	}
 	return fmt.Sprintf("Command: %s (exited with code %d)", invocation[0], result.ExitCode)
 }
 
-func RenderTags(invocation []string, result InvocationResult, title string, tags []string, showEnv bool) []string {
+func RenderTags(invocation []string, result *InvocationResult, title string, tags []string, showEnv bool) []string {
 	trapTags := []string{
 		"trap",
 		"cli",
@@ -43,7 +43,7 @@ func RenderTags(invocation []string, result InvocationResult, title string, tags
 	return finalTags
 }
 
-func RenderContent(invocation []string, result InvocationResult, title string, tags []string, showEnv bool) string {
+func RenderContent(invocation []string, result *InvocationResult, title string, tags []string, showEnv bool) string {
 	quotedInvocation := make([]string, len(invocation))
 	for i, component := range invocation {
 		quotedInvocation[i] = strconv.Quote(component)
@@ -59,8 +59,8 @@ func RenderContent(invocation []string, result InvocationResult, title string, t
 	var content string = strings.Join([]string{
 		fmt.Sprintf("## invocation\n```\n%s\n```\n", strings.Join(quotedInvocation, " ")),
 		fmt.Sprintf("## exit code\n`%d`\n", result.ExitCode),
-		fmt.Sprintf("## stdout\n```\n%s\n```\n", result.OutBuffer.String()),
-		fmt.Sprintf("## stderr\n```\n%s\n```\n", result.ErrBuffer.String()),
+		fmt.Sprintf("## stdout\n```\n%s\n```\n", result.Stdout),
+		fmt.Sprintf("## stderr\n```\n%s\n```\n", result.Stderr),
 	}, "\n")
 
 	if showEnv {
