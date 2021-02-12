@@ -30,15 +30,15 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: ["linux"]
-        arch: ["386", "amd64"]
-        # os: ["linux", "darwin", "windows"]
-        # arch: ["386", "amd64", "arm"]
-        # exclude:
-        #   - os: "darwin"
-        #     arch: "arm"
-        #   - os: "windows"
-        #     arch: "arm"
+        os: ["linux", "darwin", "windows"]
+        arch: ["386", "amd64", "arm"]
+        exclude:
+          - os: "darwin"
+            arch: "arm"
+          - os: "darwin"
+            arch: "386"
+          - os: "windows"
+            arch: "arm"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
