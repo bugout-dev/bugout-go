@@ -122,13 +122,13 @@ func ClientFromEnv() (BroodClient, error) {
 		broodURL = BugoutBroodURL
 	}
 
-	broodTimeoutSecondsRaw := os.Getenv("BUGOUT_BROOD_TIMEOUT_SECONDS")
+	broodTimeoutSecondsRaw := os.Getenv("BUGOUT_TIMEOUT_SECONDS")
 	if broodTimeoutSecondsRaw == "" {
 		broodTimeoutSecondsRaw = "3"
 	}
 	broodTimeoutSeconds, conversionErr := strconv.Atoi(broodTimeoutSecondsRaw)
 	if conversionErr != nil {
-		return BroodClient{}, fmt.Errorf("Could not parse environment variable as integer: BUGOUT_BROOD_TIMEOUT_SECONDS=%s", broodTimeoutSecondsRaw)
+		return BroodClient{}, fmt.Errorf("Could not parse environment variable as integer: BUGOUT_TIMEOUT_SECONDS=%s", broodTimeoutSecondsRaw)
 	}
 	broodTimeout := time.Duration(broodTimeoutSeconds) * time.Second
 

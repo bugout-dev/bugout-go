@@ -86,7 +86,7 @@ func ClientFromEnv() (SpireClient, error) {
 		spireURL = BugoutSpireURL
 	}
 
-	spireTimeoutSecondsRaw := os.Getenv("BUGOUT_SPIRE_TIMEOUT_SECONDS")
+	spireTimeoutSecondsRaw := os.Getenv("BUGOUT_TIMEOUT_SECONDS")
 	if spireTimeoutSecondsRaw == "" {
 		spireTimeoutSecondsRaw = "3"
 	}
