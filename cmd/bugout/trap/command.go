@@ -3,6 +3,7 @@ package trapcmd
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -58,6 +59,10 @@ Specify the wrapped command using "--" followed by the command:
 			}
 
 			cmd.ErrOrStderr().Write([]byte(fmt.Sprintf("\n\nBugout entry created at: %s/journals/%s/%s\n", cmdutils.BugoutURL(), journalID, response.Id)))
+
+			if result.ExitCode > 0 {
+				os.Exit(result.ExitCode)
+			}
 			return nil
 		},
 	}
