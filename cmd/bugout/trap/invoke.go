@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -17,7 +18,7 @@ type InvocationResult struct {
 }
 
 func stream(reader io.Reader, writer io.Writer, doneChan chan<- bool, cancelChan <-chan bool) {
-	b := make([]byte, 1)
+	b := make([]byte, 1024)
 	for {
 		select {
 		case <-cancelChan:
@@ -97,6 +98,8 @@ func RunWrappedCommand(trapCmd *cobra.Command, invocation []string) (*Invocation
 						exitChannel <- 1
 					}
 					return
+				} else {
+					time.Sleep(10 * time.Millisecond)
 				}
 			}
 		}
