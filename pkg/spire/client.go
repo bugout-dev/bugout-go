@@ -28,7 +28,7 @@ type SpireCaller interface {
 	DeleteEntry(token, journalID, entryID string) (Entry, error)
 	GetEntry(token, journalID, entryID string) (Entry, error)
 	ListEntries(token, journalID string, limit, offset int) (EntryResultsPage, error)
-	SearchEntries(token, journalID, searchQuery string, limit, offset int) (EntryResultsPage, error)
+	SearchEntries(token, journalID, searchQuery string, limit, offset int, queryParameters map[string]string) (EntryResultsPage, error)
 	TagEntry(token, journalID, entryID string, tags []string) (Entry, error)
 	UntagEntry(token, journalID, entryID string, tags []string) (Entry, error)
 	UpdateEntry(token, journalID, entryID, title, content string) (Entry, error)

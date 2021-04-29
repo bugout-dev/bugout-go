@@ -138,7 +138,7 @@ func (client SpireClient) ListEntries(token, journalID string, limit, offset int
 	return entries, decodeErr
 }
 
-func (client SpireClient) SearchEntries(token, journalID, searchQuery string, limit, offset int) (EntryResultsPage, error) {
+func (client SpireClient) SearchEntries(token, journalID, searchQuery string, limit, offset int, queryParameters map[string]string) (EntryResultsPage, error) {
 	entriesRoute := fmt.Sprintf("%s/%s/search", client.Routes.Journals, journalID)
 	request, requestErr := http.NewRequest("GET", entriesRoute, nil)
 	if requestErr != nil {
@@ -148,6 +148,11 @@ func (client SpireClient) SearchEntries(token, journalID, searchQuery string, li
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 	// Pattern taken from Stack Overflow: https://stackoverflow.com/a/30657518/13659585
 	query := request.URL.Query()
+	// First add query parameters. q, limit, and offset will override the same parameters passed in
+	// the queryParameters object.
+	for k, v := range queryParameters {
+		query.Add(k, v)
+	}
 	query.Add("q", searchQuery)
 	query.Add("limit", strconv.Itoa(limit))
 	query.Add("offset", strconv.Itoa(offset))
