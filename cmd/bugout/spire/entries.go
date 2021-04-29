@@ -203,6 +203,7 @@ func CreateEntriesListCommand() *cobra.Command {
 func CreateEntriesSearchCommand() *cobra.Command {
 	var token, journalID string
 	var limit, offset int
+	var queryParams map[string]string
 	cmd := &cobra.Command{
 		Use:     "search [query]",
 		Short:   "Search across the entries in a Bugout journal",
@@ -215,7 +216,7 @@ func CreateEntriesSearchCommand() *cobra.Command {
 
 			searchQuery := strings.Join(args, " ")
 
-			entries, err := client.Spire.SearchEntries(token, journalID, searchQuery, limit, offset)
+			entries, err := client.Spire.SearchEntries(token, journalID, searchQuery, limit, offset, queryParams)
 			if err != nil {
 				return err
 			}
@@ -229,6 +230,7 @@ func CreateEntriesSearchCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&journalID, "journal", "j", "", "ID of journal")
 	cmd.Flags().IntVarP(&limit, "limit", "N", 10, "Number of entries per page")
 	cmd.Flags().IntVarP(&offset, "offset", "n", 0, "Index of starting entry on current page")
+	cmd.Flags().StringToStringVarP(&queryParams, "params", "p", nil, "Optional query parameters to add to the query")
 
 	return cmd
 }
