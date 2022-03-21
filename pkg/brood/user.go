@@ -142,6 +142,58 @@ func (client BroodClient) ListTokens(token string) (UserTokensList, error) {
 	return result, decodeErr
 }
 
+/* Find Brood user if exists
+query parameters:
+- **user_id** (UUID): Brood user ID
+- **username** (string): User name
+- **email** (string): User email
+- **application_id** (UUID): Application user belongs to
+*/
+func (client BroodClient) FindUser(token string, queryParameters map[string]string) (User, error) {
+	findUserRoute := client.Routes.FindUser
+	request, requestErr := http.NewRequest("GET", findUserRoute, nil)
+	if requestErr != nil {
+		return User{}, requestErr
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	query := request.URL.Query()
+	for k, v := range queryParameters {
+		query.Add(k, v)
+	}
+	request.URL.RawQuery = query.Encode()
+
+	response, err := client.HTTPClient.Do(request)
+	if err != nil {
+		return User{}, err
+	}
+	defer response.Body.Close()
+
+	var buf bytes.Buffer
+	bodyReader := io.TeeReader(response.Body, &buf)
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return User{}, statusErr
+	}
+
+	var user User
+	decodeErr := json.NewDecoder(bodyReader).Decode(&user)
+	if decodeErr != nil {
+		return user, decodeErr
+	}
+	if user.Id == "" {
+		userID, decodeErr := getUserID(json.NewDecoder(&buf))
+		if decodeErr != nil {
+			return user, decodeErr
+		}
+		user.Id = userID
+	}
+
+	return user, nil
+}
+
 func (client BroodClient) GetUser(token string) (User, error) {
 	userRoute := client.Routes.User
 	request, requestErr := http.NewRequest("GET", userRoute, nil)
