@@ -10,11 +10,12 @@ import (
 
 func PopulateBroodCommands(cmd *cobra.Command) {
 	groupsCmd := CreateGroupsCommand()
+	resourcesCmd := GenerateResourcesCommand()
 	pingCmd := CreatePingCommand()
 	userCmd := CreateUserCommand()
 	versionCmd := CreateVersionCommand()
 
-	cmd.AddCommand(groupsCmd, pingCmd, userCmd, versionCmd)
+	cmd.AddCommand(groupsCmd, resourcesCmd, pingCmd, userCmd, versionCmd)
 }
 
 func CreatePingCommand() *cobra.Command {

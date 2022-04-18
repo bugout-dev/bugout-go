@@ -2,6 +2,7 @@ package broodcmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -20,10 +21,11 @@ func CreateUserCommand() *cobra.Command {
 	userLoginCmd := CreateUserLoginCommand()
 	userTokensCmd := CreateUserTokensCommand()
 	userGetCmd := CreateUserGetCommand()
+	userFindCmd := CreateUserFindCommand()
 	userVerifyCmd := CreateUserVerifyCommand()
 	userChangePasswordCmd := CreateUserChangePasswordCommand()
 
-	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd, userGetCmd, userVerifyCmd, userChangePasswordCmd)
+	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd, userGetCmd, userFindCmd, userVerifyCmd, userChangePasswordCmd)
 
 	return userCmd
 }
@@ -153,6 +155,58 @@ func CreateUserGetCommand() *cobra.Command {
 	userGetCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
 
 	return userGetCmd
+}
+
+func CreateUserFindCommand() *cobra.Command {
+	var token, user_id, username, email, application_id string
+	userFindCmd := &cobra.Command{
+		Use:   "find",
+		Short: "Find user if exists",
+		Args: func(cmd *cobra.Command, args []string) error {
+			if user_id == "" && username == "" && email == "" && application_id == "" {
+				return errors.New("Exactly one of --user_id or --username or --email or application_id must be specified")
+			}
+
+			return nil
+		},
+		PreRunE: cmdutils.TokenArgPopulator,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := bugout.ClientFromEnv()
+			if err != nil {
+				return err
+			}
+
+			queryParams := make(map[string]string)
+			if user_id != "" {
+				queryParams["user_id"] = user_id
+			}
+			if username != "" {
+				queryParams["username"] = username
+			}
+			if email != "" {
+				queryParams["email"] = email
+			}
+			if application_id != "" {
+				queryParams["application_id"] = application_id
+			}
+
+			user, err := client.Brood.FindUser(token, queryParams)
+			if err != nil {
+				return err
+			}
+
+			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(&user)
+			return encodeErr
+		},
+	}
+
+	userFindCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	userFindCmd.Flags().StringVarP(&user_id, "user_id", "i", "", "Bugout user ID")
+	userFindCmd.Flags().StringVarP(&username, "username", "u", "", "User name")
+	userFindCmd.Flags().StringVarP(&email, "email", "e", "", "User email address")
+	userFindCmd.Flags().StringVarP(&application_id, "application_id", "a", "", "Application user belongs to")
+
+	return userFindCmd
 }
 
 func CreateUserVerifyCommand() *cobra.Command {

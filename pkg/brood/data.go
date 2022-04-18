@@ -47,3 +47,19 @@ type UserGroup struct {
 type UserGroupsList struct {
 	Groups []UserGroup `json:"groups"`
 }
+
+// Resources
+type Resource struct {
+	Id            string      `json:"id"`
+	ApplicationId string      `json:"application_id"`
+	ResourceData  interface{} `json:"resource_data"`
+}
+
+type Resources struct {
+	Resources []Resource `json:"resources"`
+}
+
+type resourceCreateRequest struct {
+	ApplicationId string      `json:"application_id"`
+	ResourceData  interface{} `json:"resource_data"`
+}
