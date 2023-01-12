@@ -35,6 +35,10 @@ type BroodCaller interface {
 	CreateResource(token, applicationId string, resourceData interface{}) (Resource, error)
 	GetResources(token, applicationId string, queryParameters map[string]string) (Resources, error)
 	DeleteResource(token, resourceId string) (Resource, error)
+	CreateApplication(token, groupId, name, description string) (Application, error)
+	GetApplication(token, applicationId string) (Application, error)
+	ListApplications(token, groupId string) (ApplicationsList, error)
+	DeleteApplication(token, applicationId string) (Application, error)
 }
 
 type BroodRoutes struct {
@@ -51,6 +55,7 @@ type BroodRoutes struct {
 	RequestReset        string
 	ConfirmReset        string
 	Resources           string
+	Applications        string
 }
 
 func RoutesFromURL(broodURL string) BroodRoutes {
@@ -69,6 +74,7 @@ func RoutesFromURL(broodURL string) BroodRoutes {
 		RequestReset:        fmt.Sprintf("%s/reset", cleanURL),
 		ConfirmReset:        fmt.Sprintf("%s/reset_password", cleanURL),
 		Resources:           fmt.Sprintf("%s/resources", cleanURL),
+		Applications:        fmt.Sprintf("%s/applications", cleanURL),
 	}
 }
 

@@ -48,6 +48,19 @@ type UserGroupsList struct {
 	Groups []UserGroup `json:"groups"`
 }
 
+// Applications
+
+type Application struct {
+	Id          string `json:"id"`
+	GroupId     string `json:"group_id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+}
+
+type ApplicationsList struct {
+	Applications []Application `json:"applications"`
+}
+
 // Resources
 type Resource struct {
 	Id            string      `json:"id"`

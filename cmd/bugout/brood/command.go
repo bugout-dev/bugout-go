@@ -14,8 +14,9 @@ func PopulateBroodCommands(cmd *cobra.Command) {
 	pingCmd := CreatePingCommand()
 	userCmd := CreateUserCommand()
 	versionCmd := CreateVersionCommand()
+	applicationsCmd := CreateApplicationsCommand()
 
-	cmd.AddCommand(groupsCmd, resourcesCmd, pingCmd, userCmd, versionCmd)
+	cmd.AddCommand(groupsCmd, resourcesCmd, pingCmd, userCmd, versionCmd, applicationsCmd)
 }
 
 func CreatePingCommand() *cobra.Command {
