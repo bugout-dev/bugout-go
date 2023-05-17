@@ -44,6 +44,46 @@ func (client BroodClient) CreateResource(token, applicationId string, resourceDa
 	return resource, decodeErr
 }
 
+func (client BroodClient) UpdateResource(token, resourceId string, update interface{}, dropKeys []string) (Resource, error) {
+	requestBody := resourceUpdateRequest{
+		Update:   make(map[string]interface{}),
+		DropKeys: []string{},
+	}
+	if update != nil {
+		requestBody.Update = update
+	}
+	if dropKeys != nil {
+		requestBody.DropKeys = dropKeys
+	}
+	requestBuffer := new(bytes.Buffer)
+	encodeErr := json.NewEncoder(requestBuffer).Encode(requestBody)
+	if encodeErr != nil {
+		return Resource{}, encodeErr
+	}
+	resourcesRoute := fmt.Sprintf("%s/%s", client.Routes.Resources, resourceId)
+	request, requestErr := http.NewRequest("PUT", resourcesRoute, requestBuffer)
+	if requestErr != nil {
+		return Resource{}, requestErr
+	}
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	response, responseErr := client.HTTPClient.Do(request)
+	if responseErr != nil {
+		return Resource{}, responseErr
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return Resource{}, statusErr
+	}
+
+	var resource Resource
+	decodeErr := json.NewDecoder(response.Body).Decode(&resource)
+	return resource, decodeErr
+}
+
 func (client BroodClient) GetResources(token, applicationId string, queryParameters map[string]string) (Resources, error) {
 	resourcesRoute := client.Routes.Resources
 	request, requestErr := http.NewRequest("GET", resourcesRoute, nil)

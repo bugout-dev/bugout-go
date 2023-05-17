@@ -33,6 +33,7 @@ type BroodCaller interface {
 	AddUserToGroup(token, groupID, username, role string) (UserGroup, error)
 	RemoveUserFromGroup(token, groupID, username string) (UserGroup, error)
 	CreateResource(token, applicationId string, resourceData interface{}) (Resource, error)
+	UpdateResource(token, resourceId string, update interface{}, dropKeys []string) (Resource, error)
 	GetResources(token, applicationId string, queryParameters map[string]string) (Resources, error)
 	DeleteResource(token, resourceId string) (Resource, error)
 	CreateApplication(token, groupId, name, description string) (Application, error)

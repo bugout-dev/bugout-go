@@ -76,3 +76,8 @@ type resourceCreateRequest struct {
 	ApplicationId string      `json:"application_id"`
 	ResourceData  interface{} `json:"resource_data"`
 }
+
+type resourceUpdateRequest struct {
+	Update   interface{} `json:"update"`
+	DropKeys []string    `json:"drop_keys"`
+}
