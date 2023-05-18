@@ -17,10 +17,11 @@ func GenerateResourcesCommand() *cobra.Command {
 	}
 
 	resourcesCreateCmd := GenerateResourceCreateCommand()
+	resourcesUpdateCmd := GenerateResourceUpdateCommand()
 	resourcesDeleteCmd := GenerateResourceDeleteCommand()
 	resourcesGetCmd := GenerateResourcesGetCommand()
 
-	resourcesCmd.AddCommand(resourcesCreateCmd, resourcesDeleteCmd, resourcesGetCmd)
+	resourcesCmd.AddCommand(resourcesCreateCmd, resourcesUpdateCmd, resourcesDeleteCmd, resourcesGetCmd)
 
 	return resourcesCmd
 }
@@ -60,6 +61,48 @@ func GenerateResourceCreateCommand() *cobra.Command {
 	resourceCreateCmd.Flags().StringVarP(&applicationId, "application_id", "a", "", "Application ID resource belongs to")
 
 	return resourceCreateCmd
+}
+
+type resourceUpdateArg struct {
+	Update   interface{} `json:"update"`
+	DropKeys []string    `json:"drop_keys"`
+}
+
+func GenerateResourceUpdateCommand() *cobra.Command {
+	var token, resourceId string
+	resourceUpdateCmd := &cobra.Command{
+		Use:     "update [resource]",
+		Short:   "Update resource",
+		PreRunE: cmdutils.TokenArgPopulator,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) != 1 {
+				return fmt.Errorf(`One resource argument as json string in format {"update": {"key": "value"}, drop_keys: ["key"]} must be specified`)
+			}
+			var resourceUpdateRaw resourceUpdateArg
+			err := json.Unmarshal([]byte(args[0]), &resourceUpdateRaw)
+			if err != nil {
+				return err
+			}
+
+			client, clientErr := bugout.ClientFromEnv()
+			if clientErr != nil {
+				return clientErr
+			}
+
+			resource, err := client.Brood.UpdateResource(token, resourceId, resourceUpdateRaw.Update, resourceUpdateRaw.DropKeys)
+			if err != nil {
+				return err
+			}
+
+			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(&resource)
+			return encodeErr
+		},
+	}
+
+	resourceUpdateCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	resourceUpdateCmd.Flags().StringVarP(&resourceId, "resource_id", "r", "", "Resource ID")
+
+	return resourceUpdateCmd
 }
 
 func GenerateResourceDeleteCommand() *cobra.Command {
