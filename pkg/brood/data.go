@@ -81,3 +81,14 @@ type resourceUpdateRequest struct {
 	Update   interface{} `json:"update"`
 	DropKeys []string    `json:"drop_keys"`
 }
+
+type ResourceHolder struct {
+	Id          string   `json:"holder_id"`
+	HolderType  string   `json:"holder_type"`
+	Permissions []string `json:"permissions"`
+}
+
+type ResourceHolders struct {
+	ResourceId string           `json:"resource_id"`
+	Holders    []ResourceHolder `json:"holders"`
+}

@@ -141,3 +141,90 @@ func (client BroodClient) DeleteResource(token, resourceId string) (Resource, er
 
 	return resource, decodeErr
 }
+
+func (client BroodClient) GetResourceHolders(token, resourceId string) (ResourceHolders, error) {
+	resourcesRoute := fmt.Sprintf("%s/%s/holders", client.Routes.Resources, resourceId)
+	request, requestErr := http.NewRequest("GET", resourcesRoute, nil)
+	if requestErr != nil {
+		return ResourceHolders{}, requestErr
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	response, responseErr := client.HTTPClient.Do(request)
+	if responseErr != nil {
+		return ResourceHolders{}, responseErr
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return ResourceHolders{}, statusErr
+	}
+
+	var resourceHolders ResourceHolders
+	decodeErr := json.NewDecoder(response.Body).Decode(&resourceHolders)
+	return resourceHolders, decodeErr
+}
+
+func (client BroodClient) AddResourceHolderPermissions(token, resourceId string, resourceHolder ResourceHolder) (ResourceHolders, error) {
+	requestBody := ResourceHolder(resourceHolder)
+	requestBuffer := new(bytes.Buffer)
+	encodeErr := json.NewEncoder(requestBuffer).Encode(requestBody)
+	if encodeErr != nil {
+		return ResourceHolders{}, encodeErr
+	}
+	resourcesRoute := fmt.Sprintf("%s/%s/holders", client.Routes.Resources, resourceId)
+	request, requestErr := http.NewRequest("POST", resourcesRoute, requestBuffer)
+	if requestErr != nil {
+		return ResourceHolders{}, requestErr
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	response, responseErr := client.HTTPClient.Do(request)
+	if responseErr != nil {
+		return ResourceHolders{}, responseErr
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return ResourceHolders{}, statusErr
+	}
+
+	var resourceHolders ResourceHolders
+	decodeErr := json.NewDecoder(response.Body).Decode(&resourceHolders)
+	return resourceHolders, decodeErr
+}
+
+func (client BroodClient) DeleteResourceHolderPermissions(token, resourceId string, resourceHolder ResourceHolder) (ResourceHolders, error) {
+	requestBody := ResourceHolder(resourceHolder)
+	requestBuffer := new(bytes.Buffer)
+	encodeErr := json.NewEncoder(requestBuffer).Encode(requestBody)
+	if encodeErr != nil {
+		return ResourceHolders{}, encodeErr
+	}
+	resourcesRoute := fmt.Sprintf("%s/%s/holders", client.Routes.Resources, resourceId)
+	request, requestErr := http.NewRequest("DELETE", resourcesRoute, requestBuffer)
+	if requestErr != nil {
+		return ResourceHolders{}, requestErr
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	response, responseErr := client.HTTPClient.Do(request)
+	if responseErr != nil {
+		return ResourceHolders{}, responseErr
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return ResourceHolders{}, statusErr
+	}
+
+	var resourceHolders ResourceHolders
+	decodeErr := json.NewDecoder(response.Body).Decode(&resourceHolders)
+	return resourceHolders, decodeErr
+}
