@@ -12,11 +12,14 @@ type BugoutClient struct {
 	Spire spire.SpireCaller
 }
 
-func Client(broodURL, spireURL string, broodTimeout, spireTimeout time.Duration) BugoutClient {
-	broodClient := brood.NewClient(broodURL, broodTimeout)
-	spireClient := spire.NewClient(spireURL, spireTimeout)
+func ClientBrood(broodURL string, timeout time.Duration) BugoutClient {
+	broodClient := brood.NewClient(broodURL, timeout)
+	return BugoutClient{Brood: broodClient}
+}
 
-	return BugoutClient{Brood: broodClient, Spire: spireClient}
+func ClientSpire(spireURL string, timeout time.Duration) BugoutClient {
+	spireClient := spire.NewClient(spireURL, timeout)
+	return BugoutClient{Spire: spireClient}
 }
 
 func ClientFromEnv() (BugoutClient, error) {
