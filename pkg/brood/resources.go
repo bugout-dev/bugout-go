@@ -84,6 +84,31 @@ func (client BroodClient) UpdateResource(token, resourceId string, update interf
 	return resource, decodeErr
 }
 
+func (client BroodClient) GetResource(token, resourceId string) (Resource, error) {
+	resourcesRoute := fmt.Sprintf("%s/%s", client.Routes.Resources, resourceId)
+	request, requestErr := http.NewRequest("GET", resourcesRoute, nil)
+	if requestErr != nil {
+		return Resource{}, requestErr
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	response, responseErr := client.HTTPClient.Do(request)
+	if responseErr != nil {
+		return Resource{}, responseErr
+	}
+	defer response.Body.Close()
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return Resource{}, statusErr
+	}
+
+	var resource Resource
+	decodeErr := json.NewDecoder(response.Body).Decode(&resource)
+	return resource, decodeErr
+}
+
 func (client BroodClient) GetResources(token, applicationId string, queryParameters map[string]string) (Resources, error) {
 	resourcesRoute := client.Routes.Resources
 	request, requestErr := http.NewRequest("GET", resourcesRoute, nil)

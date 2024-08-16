@@ -142,7 +142,9 @@ func (client BroodClient) ListTokens(token string) (UserTokensList, error) {
 	return result, decodeErr
 }
 
-/* Find Brood user if exists
+/*
+	Find Brood user if exists
+
 query parameters:
 - **user_id** (UUID): Brood user ID
 - **username** (string): User name

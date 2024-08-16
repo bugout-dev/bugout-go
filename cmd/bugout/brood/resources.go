@@ -20,11 +20,12 @@ func GenerateResourcesCommand() *cobra.Command {
 	resourcesCreateCmd := GenerateResourceCreateCommand()
 	resourcesUpdateCmd := GenerateResourceUpdateCommand()
 	resourcesDeleteCmd := GenerateResourceDeleteCommand()
+	resourceGetCmd := GenerateResourceGetCommand()
 	resourcesGetCmd := GenerateResourcesGetCommand()
 
 	resourceHoldersCmd := GenerateResourceHoldersCommand()
 
-	resourcesCmd.AddCommand(resourcesCreateCmd, resourcesUpdateCmd, resourcesDeleteCmd, resourcesGetCmd, resourceHoldersCmd)
+	resourcesCmd.AddCommand(resourcesCreateCmd, resourcesUpdateCmd, resourcesDeleteCmd, resourceGetCmd, resourcesGetCmd, resourceHoldersCmd)
 
 	return resourcesCmd
 }
@@ -151,12 +152,40 @@ func GenerateResourceDeleteCommand() *cobra.Command {
 	return resourceDeleteCmd
 }
 
+func GenerateResourceGetCommand() *cobra.Command {
+	var token, resourceId string
+	resourcesGetCmd := &cobra.Command{
+		Use:     "get",
+		Short:   "Get resource of application",
+		PreRunE: cmdutils.TokenArgPopulator,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, clientErr := bugout.ClientFromEnv()
+			if clientErr != nil {
+				return clientErr
+			}
+
+			resources, err := client.Brood.GetResource(token, resourceId)
+			if err != nil {
+				return nil
+			}
+
+			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(&resources)
+			return encodeErr
+		},
+	}
+
+	resourcesGetCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+	resourcesGetCmd.Flags().StringVarP(&resourceId, "resource_id", "r", "", "Resource ID")
+
+	return resourcesGetCmd
+}
+
 func GenerateResourcesGetCommand() *cobra.Command {
 	var token, applicationId string
 	var queryParams map[string]string
 	resourcesGetCmd := &cobra.Command{
-		Use:     "get",
-		Short:   "Get resources of application",
+		Use:     "list",
+		Short:   "List resources of application",
 		PreRunE: cmdutils.TokenArgPopulator,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client, clientErr := bugout.ClientFromEnv()
