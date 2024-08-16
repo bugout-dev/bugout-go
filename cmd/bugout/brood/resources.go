@@ -21,11 +21,11 @@ func GenerateResourcesCommand() *cobra.Command {
 	resourcesUpdateCmd := GenerateResourceUpdateCommand()
 	resourcesDeleteCmd := GenerateResourceDeleteCommand()
 	resourceGetCmd := GenerateResourceGetCommand()
-	resourcesListCmd := GenerateResourcesListCommand()
+	resourcesGetCmd := GenerateResourcesGetCommand()
 
 	resourceHoldersCmd := GenerateResourceHoldersCommand()
 
-	resourcesCmd.AddCommand(resourcesCreateCmd, resourcesUpdateCmd, resourcesDeleteCmd, resourceGetCmd, resourcesListCmd, resourceHoldersCmd)
+	resourcesCmd.AddCommand(resourcesCreateCmd, resourcesUpdateCmd, resourcesDeleteCmd, resourceGetCmd, resourcesGetCmd, resourceHoldersCmd)
 
 	return resourcesCmd
 }
@@ -180,7 +180,7 @@ func GenerateResourceGetCommand() *cobra.Command {
 	return resourcesGetCmd
 }
 
-func GenerateResourcesListCommand() *cobra.Command {
+func GenerateResourcesGetCommand() *cobra.Command {
 	var token, applicationId string
 	var queryParams map[string]string
 	resourcesGetCmd := &cobra.Command{
