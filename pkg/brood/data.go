@@ -83,7 +83,7 @@ type resourceUpdateRequest struct {
 }
 
 type ResourceHolder struct {
-	Id          string   `json:"holder_id"`
+	Id          string   `json:"id"`
 	HolderType  string   `json:"holder_type"`
 	Permissions []string `json:"permissions"`
 }
