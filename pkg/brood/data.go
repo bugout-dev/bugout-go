@@ -1,5 +1,9 @@
 package brood
 
+import (
+	"encoding/json"
+)
+
 type User struct {
 	Id              string `json:"id"`
 	Username        string `json:"username"`
@@ -83,9 +87,35 @@ type resourceUpdateRequest struct {
 }
 
 type ResourceHolder struct {
-	Id          string   `json:"id"`
+	Id          string   `json:"holder_id"`
 	HolderType  string   `json:"holder_type"`
 	Permissions []string `json:"permissions"`
+}
+
+func (r *ResourceHolder) UnmarshalJSON(data []byte) error {
+	// Define an alias to avoid recursion in custom unmarshaling
+	type Alias ResourceHolder
+	aux := &struct {
+		Id       string `json:"id"`
+		HolderId string `json:"holder_id"`
+		*Alias
+	}{
+		Alias: (*Alias)(r),
+	}
+
+	// Unmarshal into the auxiliary struct
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	// Populate the Id field based on available data
+	if aux.Id != "" {
+		r.Id = aux.Id
+	} else {
+		r.Id = aux.HolderId
+	}
+
+	return nil
 }
 
 type ResourceHolders struct {

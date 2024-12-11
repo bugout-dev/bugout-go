@@ -1,3 +1,3 @@
 package bugout
 
-const Version string = "0.4.5"
+const Version string = "0.4.6"
