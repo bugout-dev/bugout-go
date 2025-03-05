@@ -18,6 +18,7 @@ const BugoutBroodURL string = "https://auth.bugout.dev"
 type BroodCaller interface {
 	Ping() (string, error)
 	Version() (string, error)
+	Auth(token string) (AuthUser, error)
 	CreateUser(string, string, string) (User, error)
 	GenerateToken(string, string) (string, error)
 	AnnotateToken(token, tokenType, note string) (string, error)
@@ -49,6 +50,7 @@ type BroodCaller interface {
 type BroodRoutes struct {
 	Ping                string
 	Version             string
+	Auth                string
 	User                string
 	FindUser            string
 	Groups              string
@@ -69,6 +71,7 @@ func RoutesFromURL(broodURL string) BroodRoutes {
 	return BroodRoutes{
 		Ping:                fmt.Sprintf("%s/ping", cleanURL),
 		Version:             fmt.Sprintf("%s/version", cleanURL),
+		Auth:                fmt.Sprintf("%s/auth", cleanURL),
 		User:                fmt.Sprintf("%s/user", cleanURL),
 		FindUser:            fmt.Sprintf("%s/user/find", cleanURL),
 		Groups:              fmt.Sprintf("%s/groups", cleanURL),
