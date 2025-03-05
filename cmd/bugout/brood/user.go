@@ -17,6 +17,7 @@ func CreateUserCommand() *cobra.Command {
 		Short: "Bugout user operations",
 	}
 
+	userAuthCmd := CreateUserAuthCommand()
 	userCreateCmd := CreateUserCreateCommand()
 	userLoginCmd := CreateUserLoginCommand()
 	userTokensCmd := CreateUserTokensCommand()
@@ -25,9 +26,36 @@ func CreateUserCommand() *cobra.Command {
 	userVerifyCmd := CreateUserVerifyCommand()
 	userChangePasswordCmd := CreateUserChangePasswordCommand()
 
-	userCmd.AddCommand(userCreateCmd, userLoginCmd, userTokensCmd, userGetCmd, userFindCmd, userVerifyCmd, userChangePasswordCmd)
+	userCmd.AddCommand(userAuthCmd, userCreateCmd, userLoginCmd, userTokensCmd, userGetCmd, userFindCmd, userVerifyCmd, userChangePasswordCmd)
 
 	return userCmd
+}
+
+func CreateUserAuthCommand() *cobra.Command {
+	var token string
+	userGetCmd := &cobra.Command{
+		Use:     "auth",
+		Short:   "Get the user with groups represented by a token",
+		PreRunE: cmdutils.TokenArgPopulator,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client, err := bugout.ClientFromEnv()
+			if err != nil {
+				return err
+			}
+
+			userAuth, err := client.Brood.Auth(token)
+			if err != nil {
+				return err
+			}
+
+			encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(&userAuth)
+			return encodeErr
+		},
+	}
+
+	userGetCmd.Flags().StringVarP(&token, "token", "t", "", "Bugout access token to use for the request")
+
+	return userGetCmd
 }
 
 func CreateUserCreateCommand() *cobra.Command {

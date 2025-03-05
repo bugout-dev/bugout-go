@@ -22,6 +22,38 @@ func getUserID(decoder *json.Decoder) (string, error) {
 	return userIDWrapper.UserID, decodeErr
 }
 
+func (client BroodClient) Auth(token string) (AuthUser, error) {
+	authRoute := client.Routes.Auth
+	request, requestErr := http.NewRequest("GET", authRoute, nil)
+	if requestErr != nil {
+		return AuthUser{}, requestErr
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	request.Header.Add("Accept", "application/json")
+
+	response, err := client.HTTPClient.Do(request)
+	if err != nil {
+		return AuthUser{}, err
+	}
+	defer response.Body.Close()
+
+	var buf bytes.Buffer
+	bodyReader := io.TeeReader(response.Body, &buf)
+
+	statusErr := utils.HTTPStatusCheck(response)
+	if statusErr != nil {
+		return AuthUser{}, statusErr
+	}
+
+	var authUser AuthUser
+	decodeErr := json.NewDecoder(bodyReader).Decode(&authUser)
+	if decodeErr != nil {
+		return authUser, decodeErr
+	}
+
+	return authUser, nil
+}
+
 func (client BroodClient) CreateUser(username, email, password string) (User, error) {
 	userRoute := client.Routes.User
 	data := url.Values{}
